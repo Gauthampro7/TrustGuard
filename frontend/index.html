@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>TrustGuard · Digital Trust Workbench</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to workbench</a>
+  <header class="navbar">
+    <a class="nav-brand" href="./" aria-label="TrustGuard home">
+      <svg class="brand-shield" viewBox="0 0 32 36" fill="none" aria-hidden="true"><path d="M16 2 29 7v10c0 8-6 13-13 17C9 30 3 25 3 17V7L16 2Z" fill="currentColor"/><path d="m10 17 4 4 9-10" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="brand-titles"><strong>TrustGuard</strong><span>DIGITAL TRUST WORKBENCH</span></span>
+    </a>
+    <div class="nav-actions">
+      <span class="local-label">LOCAL CPU ENGINE</span>
+      <span class="system-status" id="system-status" role="status"><span class="status-dot" aria-hidden="true"></span><span id="health-label">Checking connection</span></span>
+    </div>
+  </header>
+
+  <section class="workspace-intro" aria-labelledby="page-heading">
+    <div><p class="eyebrow">INSPECT / UNDERSTAND / VERIFY</p><h1 id="page-heading">Evidence before action.</h1><p class="intro-text">Five dimensions of trust. Both sides of the evidence. A human makes the call.</p></div>
+    <div class="scenario-selector"><label for="scenario-select">Explore a simulated case</label><select id="scenario-select"><option value="none">Your own evidence</option><option value="ceo-wire-scam">01 · Executive wire request</option><option value="homoglyph-clone">02 · Lookalike profile</option><option value="wifi-compression-edge-case">03 · Poor connection, real uncertainty</option><option value="creator-copyright">04 · Creator copyright &amp; canary tripwire</option></select></div>
+  </section>
+
+  <div id="operation-status" class="operation-status" role="status" aria-live="polite" hidden></div>
+  <div id="scenario-notice" class="scenario-notice" hidden></div>
+
+  <main class="main-container" id="workspace">
+    <section class="panel input-panel" aria-labelledby="input-heading">
+      <div class="panel-header"><h2 id="input-heading"><span class="section-number">01</span> Evidence bundle</h2><span class="badge">INPUT</span></div>
+      <div class="card">
+        <h3>Claimed identity</h3>
+        <div class="form-row"><label for="target-name">Name or organization <span>(optional)</span></label><input type="text" id="target-name" maxlength="200" placeholder="Who does the sender claim to be?" autocomplete="off"></div>
+        <div class="form-row"><label for="target-handle">Reference handle <span>(optional)</span></label><input type="text" id="target-handle" maxlength="200" placeholder="@known_handle" autocomplete="off" spellcheck="false"></div>
+        <p class="fine-print">User-supplied reference only. No biometric identity baseline is enrolled.</p>
+      </div>
+      <div class="card media-card">
+        <h3>Media evidence <span class="required-label">REQUIRED</span></h3>
+        <button class="dropzone" id="media-dropzone" type="button" aria-describedby="media-help"><span class="upload-icon" aria-hidden="true">↥</span><strong>Choose or drop media</strong><span>Image, audio or video · up to 4 files</span></button>
+        <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,audio/*,video/mp4,video/webm" multiple hidden>
+        <p id="media-help" class="fine-print">20 MB per file. Images: one reduced grayscale frame. Audio: first 6 seconds. Video: one frame only; no lip-sync or liveness claim.</p>
+        <ul id="media-list" class="media-list" aria-live="polite"></ul>
+        <button id="clear-media" class="text-button" type="button" hidden>Clear evidence</button>
+      </div>
+      <div class="card text-input-card"><label for="message-text" class="card-label">Message or transcript <span class="required-label">REQUIRED</span></label><textarea id="message-text" rows="6" maxlength="20000" placeholder="Paste the accompanying message, profile bio or transcript. Text + media are required for an inspection."></textarea></div>
+      <button id="btn-run-inspection" class="btn-primary" type="button">Inspect evidence <span aria-hidden="true">→</span></button>
+      <p class="privacy-note"><span aria-hidden="true">◈</span> Original files stay in your browser. Reduced numeric samples are sent to the local engine and processed in memory.</p>
+      <details class="card canary-card"><summary>Plant a persona tripwire</summary><p class="fine-print">Create an invisible marker for text you own. A repeated marker is a copying clue; it does not identify who copied it.</p><label for="canary-text">Your public bio</label><textarea id="canary-text" rows="3" maxlength="2000" placeholder="Text you want to mark"></textarea><button id="btn-canary" class="btn-secondary" type="button">Generate marked text</button><div id="canary-result" hidden><label for="canary-output">Marked text · select and copy</label><textarea id="canary-output" readonly rows="3"></textarea><p id="canary-notice" class="fine-print"></p></div><p id="canary-status" class="fine-print" role="status"></p></details>
+      <details class="card sandbox-card" id="sandbox-card"><summary>Attacker vs. Defender Adversarial Sandbox</summary><p class="fine-print">Stress-test TrustGuard's calibration under distortion, homoglyphs, and urgent coercion live.</p><div class="sandbox-controls"><div class="sandbox-group"><label for="sandbox-degradation">Channel degradation / packet loss (U<sub>epistemic</sub> test): <span id="sandbox-degradation-val">0%</span></label><input type="range" id="sandbox-degradation" min="0" max="95" value="0" step="5"><p class="fine-print">When U &ge; 0.50, suspicion dimensions are capped at min(raw, 1.15 &minus; U) to prevent false positives.</p></div><div class="sandbox-toggles"><label class="checkbox-label"><input type="checkbox" id="sandbox-homoglyph"> <span>Inject Cyrillic homoglyph lookalikes (S<sub>ident</sub> test)</span></label><label class="checkbox-label"><input type="checkbox" id="sandbox-urgency"> <span>Inject financial urgency / wire bypass cues (S<sub>context</sub> test)</span></label><label class="checkbox-label"><input type="checkbox" id="sandbox-canary"> <span>Inject registered canary honeytoken (tripwire alert)</span></label></div><div class="sandbox-actions"><button id="btn-apply-sandbox" class="btn-secondary" type="button">Apply perturbations &amp; inspect</button><button id="btn-reset-sandbox" class="text-button" type="button">Reset perturbations</button></div></div></details>
+    </section>
+
+    <section class="panel analysis-panel" aria-labelledby="analysis-heading">
+      <div class="panel-header"><h2 id="analysis-heading"><span class="section-number">02</span> Explainable assessment</h2><span class="badge badge-accent">5D VECTOR</span></div>
+      <div id="tripwire-banner" class="tripwire-banner" role="alert" hidden><div class="tripwire-header"><span class="tripwire-icon" aria-hidden="true">&#9888;</span> <strong>ACTIVE CANARY TRIPWIRE TRIGGERED</strong></div><p id="tripwire-details" class="fine-print"></p></div>
+      <div class="verdict-banner" id="verdict-banner" tabindex="-1"><p class="verdict-tier" id="verdict-tier">READY TO INSPECT</p><h3 id="verdict-headline">Every signal needs context.</h3><p id="verdict-detail">Add media and text, or load a simulated case to explore the workbench.</p><p id="run-metadata" class="run-metadata"></p></div>
+      <div class="card vector-card">
+        <div class="card-heading"><h3>Calibrated 5D Trust Vector</h3><span class="axis-label">INDEX 0—1</span></div>
+        <p class="fine-print vector-explainer">First four dimensions: anomaly indicators. Fifth: uncertainty. These are heuristic indices, not probabilities of deception.</p>
+        <div class="vector-dimensions">
+          <div class="dimension-row"><span class="dim-label" id="label-media">Media synthesis <small>S<sub>media</sub></small></span><div class="dim-bar" role="meter" aria-labelledby="label-media" aria-valuemin="0" aria-valuemax="1" aria-valuetext="Not evaluated"><div class="dim-fill" id="bar-media"></div></div><output class="dim-val" id="val-media">—</output></div>
+          <div class="dimension-row"><span class="dim-label" id="label-cross">Cross-modal discordance <small>S<sub>cross</sub></small></span><div class="dim-bar" role="meter" aria-labelledby="label-cross" aria-valuemin="0" aria-valuemax="1" aria-valuetext="Not evaluated"><div class="dim-fill" id="bar-cross"></div></div><output class="dim-val" id="val-cross">—</output></div>
+          <div class="dimension-row"><span class="dim-label" id="label-ident">Identity mismatch <small>S<sub>ident</sub></small></span><div class="dim-bar" role="meter" aria-labelledby="label-ident" aria-valuemin="0" aria-valuemax="1" aria-valuetext="Not evaluated"><div class="dim-fill" id="bar-ident"></div></div><output class="dim-val" id="val-ident">—</output></div>
+          <div class="dimension-row"><span class="dim-label" id="label-context">Contextual anomaly <small>S<sub>context</sub></small></span><div class="dim-bar" role="meter" aria-labelledby="label-context" aria-valuemin="0" aria-valuemax="1" aria-valuetext="Not evaluated"><div class="dim-fill" id="bar-context"></div></div><output class="dim-val" id="val-context">—</output></div>
+          <div class="dimension-row uncertainty-row"><span class="dim-label" id="label-uncertainty">Epistemic uncertainty <small>U<sub>epistemic</sub></small></span><div class="dim-bar" role="meter" aria-labelledby="label-uncertainty" aria-valuemin="0" aria-valuemax="1" aria-valuetext="Not evaluated"><div class="dim-fill dim-fill-blue" id="bar-uncertainty"></div></div><output class="dim-val" id="val-uncertainty">—</output></div>
+        </div>
+        <p class="uncertainty-note" id="uncertainty-note">Missing or degraded evidence increases uncertainty; it cannot establish authenticity.</p>
+        <div class="no-proof"><strong>No score is proof.</strong><span id="proof-notice">Review the evidence and complete independent verification before taking action.</span></div>
+      </div>
+      <div class="card ledger-card"><div class="card-heading"><h3>Dual-polarity evidence ledger</h3><span class="axis-label" id="ledger-count">AWAITING EVIDENCE</span></div><div class="ledger-columns"><div class="ledger-box red-flags"><h4><span aria-hidden="true">↗</span> Red flags</h4><ul id="red-flags-list"><li class="empty-state">No inspection yet.</li></ul></div><div class="ledger-box green-flags"><h4><span aria-hidden="true">◇</span> Green anchors</h4><ul id="green-flags-list"><li class="empty-state">No inspection yet.</li></ul></div></div><div class="neutral-evidence"><h4>Limitations &amp; unavailable evidence</h4><ul id="neutral-flags-list"><li class="empty-state">Data limitations will appear here.</li></ul></div></div>
+      <div class="card environmental-card" id="environmental-card" hidden><div class="card-heading"><h3>Environmental &amp; acoustic space forensics</h3><span class="badge">MICRO-SIGNALS</span></div><p class="fine-print">Measured room impulse response (RT60) and facial ROI chrominance periodicity. Neither constitutes biological liveness or identity proof.</p><div class="environmental-grid" id="environmental-grid"></div><p id="environmental-notes" class="fine-print environmental-notes"></p></div>
+      <div class="card dialectic-card"><h3>Adversarial dialectic</h3><p class="fine-print">A deterministic, rule-based debate: empirical anomalies weighed against plausible capture limitations.</p><div class="dialectic-grid"><div class="dialectic-box prosecution"><h4>Forensic prosecutor</h4><p id="prosecution-arg">Awaiting evidence.</p></div><div class="dialectic-box defense"><h4>Defense advocate</h4><p id="defense-arg">Awaiting evidence.</p></div></div><div class="judicial-resolution"><h4>Judicial synthesis</h4><p id="judicial-synthesis">Independent human verification remains the deciding step.</p></div></div>
+    </section>
+
+    <section class="panel verification-panel" aria-labelledby="verification-heading">
+      <div class="panel-header"><h2 id="verification-heading"><span class="section-number">03</span> Human verification</h2><span class="badge badge-success">HUMAN LED</span></div>
+      <div class="card playbook-card"><h3>Independent verification playbook</h3><p class="fine-print">Complete these checks outside the suspicious channel. Check a step only after performing it.</p><div id="playbook-steps" class="playbook-steps"><p class="empty-state">Your case-specific verification steps will appear after inspection.</p></div><p id="playbook-progress" class="playbook-progress">Awaiting inspection</p></div>
+      <div class="card audit-card"><h3>Seal an incident record</h3><p class="fine-print">A tamper-evident PDF records your decision and evidence. Its signature verifies the record’s integrity, not the truth of the claim.</p><div class="form-row"><label for="analyst-id">Analyst identifier</label><input type="text" id="analyst-id" maxlength="100" placeholder="Your analyst ID" autocomplete="off"></div><div class="form-row"><label for="final-decision">Your independent decision</label><select id="final-decision"><option value="">Select a decision</option><option value="INCONCLUSIVE">Inconclusive</option><option value="FRAUD_CONFIRMED">Fraud confirmed by independent checks</option><option value="AUTHENTIC_CONFIRMED">Authenticity confirmed by independent checks</option></select></div><div class="form-row"><label for="audit-notes">Verification findings</label><textarea id="audit-notes" rows="4" maxlength="3000" placeholder="Record what you checked, the source and outcome (at least 10 characters)."></textarea></div><button id="btn-sign-audit" class="btn-secondary" type="button" disabled>Seal &amp; generate certificate</button><p id="audit-status" class="fine-print" role="status">Complete all steps, add your identifier and findings, then choose a decision.</p><div id="audit-links" class="audit-links" hidden></div></div>
+      <aside class="principle-note"><span class="eyebrow">THE TRUSTGUARD PRINCIPLE</span><p>When evidence is uncertain,<br><strong>say so.</strong></p><span>Low anomaly signals alone never verify an identity.</span></aside>
+    </section>
+  </main>
+  <footer class="footer"><span>TrustGuard / PS-02 · AI for Digital Trust</span><span>Local analysis · No external inference APIs · Human accountability</span></footer>
+</body>
+</html>

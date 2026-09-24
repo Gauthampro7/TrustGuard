@@ -1,0 +1,84 @@
+01
+Objective
+Develop a multimodal AI system capable of identifying potential synthetic media, impersonation and manipulated digital
+content, and providing an explainable assessment of its authenticity and associated risk.
+02
+Background
+Generative AI has made it easy to create convincing synthetic images, video, voice and text. This becomes a serious social
+problem when manipulated content is used for:
+Financial fraud
+Identity impersonation
+False emergency requests
+Reputation attacks
+Misleading public communication
+Social engineering
+Fabricated evidence
+Coordinated misinformation
+Synthetic content is no longer limited to obviously manipulated images. A scam may combine a real person's photograph, an
+AI-generated voice, a fabricated document and a convincing conversation into a believable identity. The Government of
+India has explicitly recognised AI-generated synthetic audio, video and text as a deepfake-related risk.
+T H E Q U E S T I O N I S N O T “ I S T H I S I M A G E A I- G E N E R AT E D ? ”
+“Can an AI system examine multiple pieces of evidence and determine whether the identity,
+media and surrounding context are consistent and trustworthy?”
+03
+Suggested Pipeline
+Media / Communication
+→
+Feature Extraction
+→
+Cross-Modal Analysis
+→
+Identity & Consistency Checks
+→
+Risk Assessment
+→
+Explainable Result
+E V I D E N C E S O U R C E S   /   A P P R OAC H E S YO U M AY E X P LO R E
+Images
+Video
+Audio
+Text conversations
+Documents
+URLs
+Metadata
+Identity information
+Deepfake detection
+Speaker & face embeddings
+Multimodal foundation models
+Semantic similarity
+Retrieval-augmented verification
+Graph-based identity analysis
+Anomaly detection
+Confidence calibration
+04
+Expected Deliverables
+Multimodal Input
+Analyse at least two evidence types
+Synthetic-Media Analysis
+Identify manipulation or AI generation
+Cross-Modal Verification
+Compare media against identity signals
+Risk Assessment
+An authenticity or impersonation-risk score
+Evidence-Based Explanation
+Show which signals drove the verdict
+Contextual Analysis
+Judge context, not media in isolation
+False-Positive Handling
+Deal with uncertain or legitimate content
+Verification Workflow
+Let the user independently verify a claim
+Working Demonstration
+Media → analysis → risk → verification
+⚠
+N O S C O R E I S P R O O F
+Teams must demonstrate that the system does not treat an AI-generated score as absolute proof, and provides a path for
+human or independent verification. Prioritise robustness, explainability, privacy and uncertainty awareness.
+E X P E C T E D O U T C O M E
+A functional multimodal digital-trust prototype that helps users identify potentially manipulated media and
+impersonation attempts before acting on misleading information.
+PS-02
+TrustGuard
+A I F O R D I G I TA L T R U S T   ·   S Y N T H E T I C M E D I A & I M P E R S O N AT I O N D E T E C T I O N
+INNOVATORS CONCL AVE 2026  ·  PS-02  ·  TRUSTGUARD
+PAGE 3 OF 4

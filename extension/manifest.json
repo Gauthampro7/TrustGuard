@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "TrustGuard: Digital Trust Sentinel",
+  "version": "1.1.0",
+  "description": "Inspect public profile headers with local evidence, lookalike warnings, a 5D trust vector, and independent verification steps.",
+  "permissions": ["activeTab"],
+  "host_permissions": ["http://127.0.0.1:8000/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "TrustGuard Sentinel"
+  },
+  "background": {"service_worker": "background.js"},
+  "content_scripts": [{
+    "matches": [
+      "https://x.com/*", "https://www.x.com/*",
+      "https://twitter.com/*", "https://www.twitter.com/*",
+      "https://instagram.com/*", "https://www.instagram.com/*",
+      "https://linkedin.com/*", "https://www.linkedin.com/*"
+    ],
+    "js": ["verdict-ui.js", "content.js"],
+    "run_at": "document_idle"
+  }]
+}

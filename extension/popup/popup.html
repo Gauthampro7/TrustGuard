@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustGuard Sentinel</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="header">
+    <div class="mark" aria-hidden="true">T</div>
+    <div><h1>TrustGuard Sentinel</h1><p>Evidence first. Verify independently.</p></div>
+    <span class="status-badge" id="engine-status">Idle</span>
+  </header>
+  <main>
+    <form class="card" id="inspection-form">
+      <h2>Inspect a public profile</h2>
+      <p class="consent">Inspect sends the visible name, handle, bio, and a readable avatar sample to your local engine. Updates continue in this tab until you stop or reload. Messages and feeds are excluded. Raw media is never saved.</p>
+      <label for="reference-handle">Known original handle <span>(optional)</span></label>
+      <input id="reference-handle" name="referenceHandle" type="text" maxlength="128" placeholder="Enter from an independent source" autocomplete="off" spellcheck="false">
+      <div class="actions">
+        <button class="primary" id="btn-inspect" type="submit">Inspect this profile</button>
+        <button id="btn-stop" type="button" hidden>Stop</button>
+      </div>
+    </form>
+    <p id="profile-name" class="profile-name" hidden></p>
+    <p id="feedback" class="feedback" role="status">Open a public profile on X, Instagram, or LinkedIn to begin.</p>
+    <div id="inspection-result" class="card" hidden></div>
+  </main>
+  <footer>No score is proof · Local analysis · No cloud API</footer>
+  <script src="../verdict-ui.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

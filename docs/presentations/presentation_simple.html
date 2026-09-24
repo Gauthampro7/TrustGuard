@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrustGuard — Simple Presentation (PS-02)</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-light: #64748b;
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --accent-border: #bfdbfe;
+      --red: #ef4444;
+      --red-soft: #fef2f2;
+      --red-border: #fecaca;
+      --green: #10b981;
+      --green-soft: #f0fdf4;
+      --green-border: #bbf7d0;
+      --amber: #f59e0b;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      line-height: 1.6;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Top progress */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 4px;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.25s ease;
+      z-index: 100;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 4px;
+      left: 0;
+      right: 0;
+      height: 52px;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      backdrop-filter: blur(8px);
+      z-index: 90;
+      font-size: 0.9rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Deck and Slides */
+    #deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      top: 56px;
+      left: 0;
+      right: 0;
+      bottom: 60px;
+      padding: 36px 64px;
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    /* Titles */
+    .eyebrow {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+    }
+    .card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .card ul {
+      margin-left: 20px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+    .card li {
+      margin-bottom: 6px;
+    }
+
+    .card-accent {
+      border-top: 4px solid var(--accent);
+    }
+    .card-red {
+      border-top: 4px solid var(--red);
+      background: #fffcfc;
+    }
+    .card-green {
+      border-top: 4px solid var(--green);
+      background: #fcfffc;
+    }
+    .card-amber {
+      border-top: 4px solid var(--amber);
+      background: #fffdfa;
+    }
+
+    /* Simple Banner */
+    .banner {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.95rem;
+      color: #1e40af;
+    }
+    .banner-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    /* Flow Steps */
+    .flow-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 20px 0 28px 0;
+    }
+    .flow-step {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 18px 14px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+    }
+    .flow-step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 0 auto 8px auto;
+    }
+    .flow-step-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .flow-step-desc {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+    .flow-arrow {
+      color: var(--accent);
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    /* Trust Meter Demo Pill */
+    .meter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+    .meter-green {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+    .meter-amber {
+      background: #fef3c7;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .meter-red {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fca5a5;
+    }
+
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #ffffff;
+      border-top: 1px solid var(--card-border);
+      z-index: 90;
+    }
+    .nav-btn {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--text-main);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .nav-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .slide-count {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+
+    @media print {
+      body {
+        overflow: visible;
+        height: auto;
+        background: #ffffff;
+      }
+      header, footer, #progress-bar {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        position: relative !important;
+        height: 100vh !important;
+        page-break-after: always;
+        break-after: page;
+        padding: 40px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <header>
+    <div class="brand">
+      <span>TrustGuard</span>
+      <span class="badge">PS-02: AI for Digital Trust</span>
+    </div>
+    <div id="slide-title-header" style="font-weight: 600; color: var(--text-main);">Welcome</div>
+    <div style="font-size: 0.8rem; color: var(--text-light);">Use [←] and [→] arrows to navigate</div>
+  </header>
+
+  <main id="deck">
+
+    <!-- SLIDE 1: INTRO -->
+    <section class="slide active">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 860px; margin: 0 auto; text-align: center;">
+        <div style="margin-bottom: 16px;">
+          <span class="badge" style="font-size: 0.85rem; padding: 6px 14px;">PROBLEM STATEMENT 02 · DIGITAL TRUST</span>
+        </div>
+        <h1 style="font-size: 3.4rem; font-weight: 800; color: #0f172a; margin-bottom: 16px; line-height: 1.15;">
+          TrustGuard
+        </h1>
+        <h2 style="font-size: 1.5rem; font-weight: 500; color: var(--accent); margin-bottom: 24px;">
+          The All-in-One Digital Identity & Impersonation Defense Platform
+        </h2>
+        <p style="font-size: 1.15rem; color: #475569; line-height: 1.6; margin-bottom: 36px;">
+          A simple, unified web application and browser companion that helps you protect your online presence, hunt down fake accounts, detect unusual activity deviations, and evaluate profile trust in real-time.
+        </p>
+
+        <div style="display: inline-flex; justify-content: center; gap: 20px; font-size: 0.95rem; color: #64748b; font-weight: 500;">
+          <span>👤 Personal Identity Baseline</span>
+          <span>•</span>
+          <span>🛡️ Clone & Copycat Detection</span>
+          <span>•</span>
+          <span>🧩 Always-On Browser Extension</span>
+          <span>•</span>
+          <span>🔍 Explainable Verification</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: THE REAL PROBLEM -->
+    <section class="slide">
+      <div class="eyebrow">01 · Why We Need This</div>
+      <h2 class="title">The Everyday Threat in 2026</h2>
+      <p class="subtitle">Scams today are no longer just bad Photoshop. They are coordinated, realistic identity attacks.</p>
+
+      <div class="grid-3">
+        <div class="card card-red">
+          <h3>🎭 Cloned Accounts & Lookalikes</h3>
+          <p>Scammers copy your profile photo, bio, and name to create lookalike handles (like adding <code>_official</code> or visually identical foreign letters) to scam your friends, colleagues, or followers.</p>
+        </div>
+
+        <div class="card card-amber">
+          <h3>🎙️ Voice & Video Impersonation</h3>
+          <p>With just 10 seconds of speech from a video or podcast, AI tools can clone someone's voice and pair it with an urgent emergency request or a fake wire transfer demand.</p>
+        </div>
+
+        <div class="card card-accent">
+          <h3>🖼️ Stolen Content & Likeness</h3>
+          <p>Creative professionals, influencers, and experts find their photos, faces, and creative work stolen, edited, and reposted across the web without credit or compensation.</p>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">💡</div>
+        <div>
+          <strong>Grammarly & QuillBot vs. TrustGuard:</strong> Tools like Grammarly or QuillBot check if a sentence has correct commas or if an essay was written by AI. But if an attacker hacks an executive's account and writes a grammatically perfect wire-transfer scam, Grammarly gives it a 100% green checkmark! <strong>Grammarly checks grammar; TrustGuard stops identity theft, voice cloning, and fraud.</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: HOW IT WORKS (SIMPLE OVERVIEW) -->
+    <section class="slide">
+      <div class="eyebrow">02 · The Solution</div>
+      <h2 class="title">How TrustGuard Works in Practice</h2>
+      <p class="subtitle">A straightforward 4-step pipeline that turns scattered signals into clear, actionable trust.</p>
+
+      <div class="flow-container">
+        <div class="flow-step">
+          <div class="flow-step-num">1</div>
+          <div class="flow-step-title">Connect Profiles</div>
+          <div class="flow-step-desc">Add your official social accounts & samples</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">2</div>
+          <div class="flow-step-title">Build Baseline</div>
+          <div class="flow-step-desc">System learns your writing style & face/voice</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">3</div>
+          <div class="flow-step-title">Monitor & Detect</div>
+          <div class="flow-step-desc">Scans for fake accounts & abnormal posts</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-step-num">4</div>
+          <div class="flow-step-title">Explainable Report</div>
+          <div class="flow-step-desc">Get clear red flags & safe verification steps</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🖥️ Unified Web Dashboard</h3>
+          <p>A user logs in, sets up their profile summary, and gets an instant security dashboard showing active alerts, clone accounts found, and protection status.</p>
+        </div>
+        <div class="card">
+          <h3>🧩 In-Browser Companion & Inspector</h3>
+          <p>Works everywhere you browse: actively checks profiles as you open them on Instagram, X, or LinkedIn, or lets you drop in suspicious media for instant explainable breakdown.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: FEATURE 1 - BASELINE & VAULT -->
+    <section class="slide">
+      <div class="eyebrow">03 · Practical Feature 1</div>
+      <h2 class="title">Your Personal Identity Baseline</h2>
+      <p class="subtitle">Building a secure reference summary so the system knows what is truly 'you'.</p>
+
+      <div class="grid-2">
+        <div class="card card-accent">
+          <h3>📂 What the User Provides</h3>
+          <ul>
+            <li><strong>Official Links:</strong> Your verified LinkedIn, X/Twitter, YouTube, GitHub, or personal portfolio link.</li>
+            <li><strong>Face & Photo References:</strong> A few clear profile photos to register your verified appearance.</li>
+            <li><strong>Voice Sample (Optional):</strong> A quick 30-second audio clip reading a phrase to register your voice tone.</li>
+            <li><strong>Writing Style Samples:</strong> A sample of past genuine posts/articles to establish your normal tone and topics.</li>
+          </ul>
+        </div>
+
+        <div class="card card-green">
+          <h3>🔒 Privacy First (Zero Data Selling)</h3>
+          <ul>
+            <li><strong>No Raw Biometric Storage:</strong> Photos and audio are converted into mathematical fingerprint numbers. Raw media is never stored or used to train public AI models.</li>
+            <li><strong>Encrypted & Local:</strong> Your profile data is encrypted and controlled 100% by you.</li>
+            <li><strong>Instant Erasure:</strong> One click to delete your profile and wipe all baseline fingerprints anytime.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">💡</div>
+        <div>
+          <strong>Why this matters:</strong> You cannot detect an "impersonation" without knowing the authentic person. This baseline gives the system the ground truth it needs to protect you.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: FEATURE 2 - FAKE ACCOUNTS & CLONES -->
+    <section class="slide">
+      <div class="eyebrow">04 · Practical Feature 2</div>
+      <h2 class="title">Fake Account & Clone Hunter</h2>
+      <p class="subtitle">Automatically finding people pretending to be you across social platforms.</p>
+
+      <div class="grid-3">
+        <div class="card card-amber">
+          <h3>1. Lookalike Username Scanner</h3>
+          <p>Catches tricky username tricks:</p>
+          <ul>
+            <li>Adding suffixes: <code>_official</code>, <code>real_</code>, <code>_support</code></li>
+            <li>Subtle misspellings (typosquatting)</li>
+            <li><strong>Lookalike letters (homoglyphs):</strong> Replacing Latin "a" with visually identical Cyrillic "а" that looks identical to the human eye.</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent">
+          <h3>2. Profile Picture & Bio Match</h3>
+          <p>Searches for accounts that have:</p>
+          <ul>
+            <li>Copied your exact profile photo or cropped versions of it.</li>
+            <li>Copied your bio text, company name, or title.</li>
+            <li>Unlinked accounts attempting to build followers using your reputation.</li>
+          </ul>
+        </div>
+
+        <div class="card card-red">
+          <h3>3. Scam Activity Alert</h3>
+          <p>Flags high-risk behaviors:</p>
+          <ul>
+            <li>Recently created accounts directly messaging your followers.</li>
+            <li>Profiles promoting crypto schemes, fake giveaways, or unauthorized paid services under your name.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">📋</div>
+        <div>
+          <strong>Actionable Output:</strong> TrustGuard gives you a direct 1-click <em>Takedown & Report Package</em> with pre-filled evidence links to submit to Twitter, LinkedIn, or Meta support.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: FEATURE 3 - ACTIVITY ANOMALY DETECTION -->
+    <section class="slide">
+      <div class="eyebrow">05 · Practical Feature 3</div>
+      <h2 class="title">Activity & Post Anomaly Detection</h2>
+      <p class="subtitle">Detecting when an account is hacked or someone is speaking completely out-of-character.</p>
+
+      <div class="grid-2">
+        <div class="card card-amber">
+          <h3>🚨 What an Anomaly Looks Like</h3>
+          <ul>
+            <li><strong>Tone & Topic Shift:</strong> A tech engineer who normally writes about Python and cloud infrastructure suddenly posts an urgent cryptocurrency investment scheme.</li>
+            <li><strong>Coercion & Panic Style:</strong> Sudden heavy use of urgent, demanding words: <em>"URGENT: Emergency wire needed! Do not call me, phone line is broken!"</em></li>
+            <li><strong>Timing & Habit Anomaly:</strong> Unusual post bursts at 3:30 AM local time or 15 rapid automated posts within 2 minutes.</li>
+            <li><strong>Life Summary Mismatch:</strong> Claims to be in London or hospital while recent verified check-ins and normal schedule confirm they are at work.</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent">
+          <h3>⚙️ How the System Detects It</h3>
+          <ul>
+            <li><strong>Writing Habit Comparison:</strong> Checks sentence lengths, word diversity, and punctuation habits against your baseline.</li>
+            <li><strong>AI-Generated Text Detection:</strong> Flags if the text reads like a generic template written by ChatGPT rather than a real human.</li>
+            <li><strong>Urgency Scoring:</strong> Measures psychological pressure tactics commonly used in phishing and extortion.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">🛡️</div>
+        <div>
+          <strong>Real-World Use:</strong> Protects companies and families from the "CEO Fraud" or "Grandparent Scam" where attackers hack an account or spoof a persona to request emergency money.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: FEATURE 4 - COPYRIGHT & CREATOR SHIELD -->
+    <section class="slide">
+      <div class="eyebrow">06 · Practical Feature 4</div>
+      <h2 class="title">Copyright & Likeness Shield</h2>
+      <p class="subtitle">Protecting creative professionals, designers, and influencers from unauthorized reuse.</p>
+
+      <div class="grid-3">
+        <div class="card card-accent">
+          <h3>🎨 Artwork & Photo Matching</h3>
+          <p>Artists upload original designs, photos, or portfolio assets. The system catches reposts even if the thief:</p>
+          <ul>
+            <li>Cropped out the artist's watermark.</li>
+            <li>Applied color filters or flipped the image horizontally.</li>
+            <li>Turned it into an unauthorized merchandise print or NFT.</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent">
+          <h3>🎙️ Voice Likeness Defense</h3>
+          <p>For podcasters, voice artists, and speakers:</p>
+          <ul>
+            <li>Alerts when your unique voice timbre is detected inside unauthorized commercial ads or AI voice apps.</li>
+            <li>Separates your real recorded voice from an AI-generated clone.</li>
+          </ul>
+        </div>
+
+        <div class="card card-green">
+          <h3>📜 Ownership Provenance</h3>
+          <p>Integrates modern <strong>Content Credentials (C2PA)</strong>:</p>
+          <ul>
+            <li>Verifies original authorship certificates.</li>
+            <li>Proves when an image was created by a real camera vs. generated by an AI tool like Midjourney.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">💼</div>
+        <div>
+          <strong>For Professionals:</strong> Creates a digital copyright dossier that creators can use to file DMCA takedown requests or claim licensing royalties.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: FEATURE 5 - ALWAYS-ON BROWSER EXTENSION (NEW) -->
+    <section class="slide">
+      <div class="eyebrow">07 · Practical Feature 5</div>
+      <h2 class="title">The Always-On Browser Extension</h2>
+      <p class="subtitle">Real-time profile genuineness as you browse Instagram, X, or Facebook.</p>
+
+      <div class="grid-2">
+        <div class="card card-accent">
+          <h3>🌐 How It Works in Your Feed</h3>
+          <p>Whenever you open someone's profile page or hover over an account in your DMs, the extension silently checks visible profile data:</p>
+          <ul>
+            <li><strong>Handle Authenticity:</strong> Checks for hidden lookalike letters, typosquatting, or brand impersonation.</li>
+            <li><strong>Profile Age vs. Clout:</strong> Flags accounts claiming to be executives or influencers created just 48 hours ago.</li>
+            <li><strong>Avatar Origin:</strong> Instantly detects if their profile photo is copied from a stock photo or verified celebrity.</li>
+            <li><strong>Network Reciprocity:</strong> Analyzes follower-to-following ratios and bot-like interaction patterns.</li>
+          </ul>
+        </div>
+
+        <div class="card card-green">
+          <h3>📈 Continuous Authenticity Score (0% – 100%)</h3>
+          <p>Instead of a crude "Real vs Fake" guess, the extension displays a live, continuous trust value right on the webpage:</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+            <div class="meter-badge meter-green">
+              <span>🟢 94% Genuine Profile</span>
+              <span style="font-weight: 400; font-size: 0.8rem; color: #166534;">— Long history, verified domain, organic interactions</span>
+            </div>
+            <div class="meter-badge meter-amber">
+              <span>🟡 58% Caution Advised</span>
+              <span style="font-weight: 400; font-size: 0.8rem; color: #92400e;">— Created recently, mismatched bio links, low post history</span>
+            </div>
+            <div class="meter-badge meter-red">
+              <span>🔴 14% High-Risk Impersonator</span>
+              <span style="font-weight: 400; font-size: 0.8rem; color: #991b1b;">— Uses Cyrillic 'а', stolen avatar, active in DM crypto scams</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">⚡</div>
+        <div>
+          <strong>The Smart Engineering Solution:</strong> By running inside the browser, the extension inspects public webpage elements directly. It <strong>never needs expensive $5,000/month social media APIs</strong> and never gets rate-limited or blocked.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: FEATURE 6 - MULTIMODAL INSPECTOR -->
+    <section class="slide">
+      <div class="eyebrow">08 · Practical Feature 6</div>
+      <h2 class="title">The Multimodal Inspector in Action</h2>
+      <p class="subtitle">Drop in any suspicious video, voice note, or message to see the full breakdown.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>📥 What You Provide to the Inspector</h3>
+          <p>Drop in <strong>at least two pieces of evidence</strong>:</p>
+          <ul>
+            <li><strong>Video or Audio clip</strong> (e.g. an urgent voice note from a boss or relative).</li>
+            <li><strong>The text chat or email</strong> accompanying the media.</li>
+            <li><strong>The claimed identity</strong> (who they say they are).</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent">
+          <h3>🔍 The 4 Concrete Checks It Runs</h3>
+          <ul>
+            <li><strong>1. Audio Check:</strong> Does the voice show signs of AI vocoder synthesis or pitch flatlining?</li>
+            <li><strong>2. Lip-Sync Check:</strong> Do the lips actually move in sync with the spoken words, or is it an audio dub?</li>
+            <li><strong>3. Text Check:</strong> Does the message use manipulative social engineering tactics?</li>
+            <li><strong>4. Identity Check:</strong> Does this match the claimed person's verified records?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card-green" style="margin-top: 4px;">
+        <h3>📊 What the User Sees: Explainable Traffic Light Verdict</h3>
+        <div style="display: flex; gap: 20px; align-items: center; margin-top: 10px;">
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px 18px; flex: 1;">
+            <div style="font-weight: 700; color: #dc2626; margin-bottom: 4px;">🔴 HIGH RISK: Cloned Voice Scam</div>
+            <div style="font-size: 0.85rem; color: #475569;">"Audio shows 89% AI synthesis signatures. Lip movements do not match spoken words at 0:02. Message demands urgent wire transfer."</div>
+          </div>
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 18px; flex: 1;">
+            <div style="font-weight: 700; color: #2563eb; margin-bottom: 4px;">✅ Safe Action Checklist</div>
+            <div style="font-size: 0.85rem; color: #475569;">1. Call person on official phone: <strong>+91-98765-XXXXX</strong>.<br>2. Do not send funds to the unverified bank account.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: "NO SCORE IS PROOF" & VERIFICATION -->
+    <section class="slide">
+      <div class="eyebrow">09 · Core Hackathon Ethos</div>
+      <h2 class="title">Why "No Score is Proof"</h2>
+      <p class="subtitle">An AI score is never absolute truth. TrustGuard gives you safe ways to verify independently.</p>
+
+      <div class="grid-3">
+        <div class="card card-accent">
+          <h3>1. No False Accusations</h3>
+          <p>If a video is simply blurry or recorded on bad hotel Wi-Fi, TrustGuard doesn't yell "Fake!". It transparently says: <em>"Quality is degraded by compression. Low confidence."</em></p>
+        </div>
+
+        <div class="card card-green">
+          <h3>2. Independent Verification</h3>
+          <p>Instead of leaving you guessing, TrustGuard provides:</p>
+          <ul>
+            <li>Verified company telephone directory lookup.</li>
+            <li>Original source video archive link if the footage was recycled.</li>
+            <li>Official bank account verification check.</li>
+          </ul>
+        </div>
+
+        <div class="card card-accent">
+          <h3>3. Signed Audit Report</h3>
+          <p>Once you verify the facts, generate an official <strong>PDF Incident Report</strong> with timestamps, evidence hashes, and notes to share with IT security, banks, or police.</p>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">🎯</div>
+        <div>
+          <strong>Judges' Favorite:</strong> The official hackathon problem explicitly states: <em>"Teams must demonstrate that the system does not treat an AI score as proof."</em> TrustGuard is built around this exact principle.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: WHAT WE DEMO (HACKATHON SCOPE) -->
+    <section class="slide">
+      <div class="eyebrow">10 · The Working Prototype</div>
+      <h2 class="title">What We Are Building for the Demo</h2>
+      <p class="subtitle">A fast, live, 100% working prototype running smoothly on stage.</p>
+
+      <div class="grid-2">
+        <div class="card card-accent">
+          <h3>💻 Live Working Components (24-Hour Scope)</h3>
+          <ul>
+            <li><strong>Interactive Web App Dashboard:</strong> Clean, responsive UI showing the user profile, active scans, and security status.</li>
+            <li><strong>Extension UI Preview:</strong> Shows the on-hover trust pill and continuous authenticity score directly over Instagram/X profile mockups.</li>
+            <li><strong>Multimodal File Dropzone:</strong> Upload a video/voice message + text conversation for real-time analysis.</li>
+            <li><strong>Live Forensic Spectrogram & Lip Sync:</strong> Shows real audio waveforms and facial landmark tracking in &lt;150ms on laptop CPU.</li>
+          </ul>
+        </div>
+
+        <div class="card card-green">
+          <h3>🎬 3 Interactive Demo Scenarios</h3>
+          <ul>
+            <li><strong>Scenario 1: The CEO Emergency Wire Call:</strong> Shows an authentic executive video combined with an AI-cloned voice and urgent chat text.</li>
+            <li><strong>Scenario 2: In-Feed Lookalike Profile (Extension):</strong> Shows an Instagram/X profile with homoglyph spoofing triggering a 14% high-risk badge.</li>
+            <li><strong>Scenario 3: The Bad Wi-Fi Edge Case:</strong> Shows a real low-res video where TrustGuard avoids false alarm and correctly reports compression noise.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">🚀</div>
+        <div>
+          <strong>Conclusion:</strong> TrustGuard is practical, privacy-respecting, and solves the real problem of digital trust—protecting real people from real attacks.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="nav-btn" id="prev-btn" onclick="prevSlide()">← Previous</button>
+      <button class="nav-btn" id="next-btn" onclick="nextSlide()">Next →</button>
+      <span class="slide-count" id="slide-count">Slide 1 of 11</span>
+    </div>
+
+    <div style="display: flex; gap: 14px; align-items: center;">
+      <button class="nav-btn" onclick="window.print()">Print / PDF</button>
+      <span style="font-size: 0.85rem; color: var(--text-light); font-weight: 500;">TrustGuard · PS-02</span>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const headerTitle = document.getElementById('slide-title-header');
+    const slideCount = document.getElementById('slide-count');
+    const progressBar = document.getElementById('progress-bar');
+    let currentSlide = 0;
+
+    const titles = [
+      "TrustGuard: Digital Trust Platform",
+      "Why We Need This: The Everyday Threat",
+      "How TrustGuard Works in Practice",
+      "Feature 1: Personal Identity Baseline",
+      "Feature 2: Fake Account & Clone Hunter",
+      "Feature 3: Activity & Post Anomaly Detection",
+      "Feature 4: Copyright & Likeness Shield",
+      "Feature 5: The Always-On Browser Extension",
+      "Feature 6: The Multimodal Inspector",
+      "Why 'No Score is Proof' & Human Verification",
+      "What We Are Building for the Demo"
+    ];
+
+    function showSlide(index) {
+      if (index < 0) index = 0;
+      if (index >= slides.length) index = slides.length - 1;
+
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+
+      currentSlide = index;
+      headerTitle.textContent = titles[index] || `Slide ${index + 1}`;
+      slideCount.textContent = `Slide ${index + 1} of ${slides.length}`;
+      progressBar.style.width = `${((index + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        showSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        showSlide(slides.length - 1);
+      }
+    });
+
+    // Initialize
+    showSlide(0);
+  </script>
+</body>
+</html>

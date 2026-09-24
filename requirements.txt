@@ -1,0 +1,6 @@
+# Local engine, API and automated tests
+-r backend/requirements.txt
+
+# Optional document/presentation regeneration tools
+pillow>=10.2.0
+python-pptx>=0.6.23
