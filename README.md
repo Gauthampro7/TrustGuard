@@ -6,12 +6,21 @@ Local multimodal inspection for Track 01 PS-02: AI for Digital Trust. TrustGuard
 
 Python 3.11+ and a modern Chromium browser are sufficient. There are no GPU, downloaded model-weight or paid API dependencies.
 
+### One-Click Launch (Recommended)
+Double-click `start.bat` or run in terminal:
+```bat
+.\start.bat
+```
+This automatically checks your environment, runs the system diagnostics suite, opens the TrustGuard Forensics Dashboard at **http://127.0.0.1:8000/dashboard/** in your default browser, and starts the FastAPI server.
+
+### Manual Launch
 ```powershell
 python -m pip install -r backend/requirements.txt
+python scripts/diagnostics.py
 python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Open **http://127.0.0.1:8000/dashboard/**. Interactive API documentation is at **http://127.0.0.1:8000/api/v1/docs**. The server serves the dashboard directly; a separate frontend server is unnecessary. Do not open `index.html` with `file://`.
+Open **http://127.0.0.1:8000/dashboard/** (navigating to `http://127.0.0.1:8000/` automatically redirects browser traffic to the dashboard). Interactive API documentation is at **http://127.0.0.1:8000/api/v1/docs**. The server serves the dashboard directly; a separate frontend server is unnecessary. Do not open `index.html` with `file://`.
 
 Choose a simulated case and click **Inspect evidence**, or supply a local image/audio/video file and accompanying text. Original files stay in the browser; reduced numeric samples are processed transiently by the loopback API. The browser processes images up to 128 × 128 pixels, the first six seconds of audio at 16 kHz, or a single video frame. Full video decoding, automatic mouth tracking and voice/face identity recognition are not implemented.
 

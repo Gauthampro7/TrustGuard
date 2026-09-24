@@ -5,10 +5,10 @@ FastAPI server prepared for local execution (<150ms latency target).
 """
 
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from .core.config import settings
 from .api.routes import api_router
@@ -81,7 +81,10 @@ async def validation_error_handler(request, error):
 
 
 @app.get("/", tags=["Root"])
-async def root():
+async def root(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/dashboard/", status_code=307)
     return {
         "service": "TrustGuard Digital Trust Engine",
         "version": settings.VERSION,

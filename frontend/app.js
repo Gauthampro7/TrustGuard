@@ -53,6 +53,9 @@ function resetResult() {
   byId("final-decision").value = "";
   byId("audit-status").textContent = "Complete all steps, add your identifier and findings, then choose a decision.";
   if (byId("tripwire-banner")) byId("tripwire-banner").hidden = true;
+  if (byId("verdict-actions")) byId("verdict-actions").hidden = true;
+  if (byId("inspector-card")) byId("inspector-card").hidden = true;
+  if (byId("copy-brief-status")) byId("copy-brief-status").textContent = "";
   if (byId("environmental-card")) {
     byId("environmental-card").hidden = true;
     byId("environmental-grid").replaceChildren();
@@ -356,6 +359,65 @@ function renderVerdict(verdict) {
       envCard.hidden = true;
     }
   }
+  if (byId("verdict-actions")) byId("verdict-actions").hidden = false;
+  const inspectorCard = byId("inspector-card");
+  if (inspectorCard) {
+    let hasViz = false;
+    const canvasSpectral = byId("canvas-spectral");
+    if (canvasSpectral && verdict.innovationMetadata?.evaluatedModalities?.includes("visual")) {
+      hasViz = true;
+      const ctx = canvasSpectral.getContext("2d");
+      ctx.clearRect(0, 0, canvasSpectral.width, canvasSpectral.height);
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(30, 10); ctx.lineTo(30, 75); ctx.lineTo(260, 75);
+      ctx.stroke();
+      ctx.strokeStyle = "#ba4857";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(30, 20);
+      for (let i = 0; i <= 20; i++) {
+        const x = 30 + (i / 20) * 230;
+        const power = Math.exp(-i / 6) * 50 + 5;
+        ctx.lineTo(x, 75 - power);
+      }
+      ctx.stroke();
+    }
+    const canvasSynchrony = byId("canvas-synchrony");
+    if (canvasSynchrony) {
+      const ctx = canvasSynchrony.getContext("2d");
+      ctx.clearRect(0, 0, canvasSynchrony.width, canvasSynchrony.height);
+      const videoItem = state.media.find(m => m.item?.modality === "video" && m.item?.samples?.audioEnvelope);
+      if (videoItem?.item?.samples) {
+        hasViz = true;
+        const env = videoItem.item.samples.audioEnvelope;
+        const mouth = videoItem.item.samples.mouthAperture;
+        if (env && mouth && env.length) {
+          ctx.strokeStyle = "#376fd2";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          const step = Math.min(80, env.length);
+          for (let i = 0; i < step; i++) {
+            const x = 20 + (i / step) * 240;
+            const y = 75 - (env[i] || 0) * 50;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          ctx.strokeStyle = "#d9822b";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          for (let i = 0; i < step; i++) {
+            const x = 20 + (i / step) * 240;
+            const y = 75 - (mouth[i] || 0) * 50;
+            if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+    }
+    inspectorCard.hidden = !hasViz;
+  }
   updateAudit();
   byId("verdict-banner").focus({ preventScroll: true });
 }
@@ -495,6 +557,54 @@ function initSandbox() {
   });
 }
 
+function exportDossier() {
+  if (!state.verdict) return;
+  const payload = JSON.stringify(state.verdict, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `trustguard-case-${state.verdict.verdictId}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function copyBrief() {
+  if (!state.verdict) return;
+  const v = state.verdict;
+  const vec = v.calibratedTrustVector;
+  const brief = [
+    `=== TrustGuard Digital Trust Incident Brief ===`,
+    `Case ID: ${v.verdictId}`,
+    `Evaluated At: ${v.evaluatedAt}`,
+    `Assessment Tier: ${v.assessmentTier}`,
+    ``,
+    `Calibrated 5D Trust Vector:`,
+    `  • S_media (Media Synthesis):        ${vec.mediaSynthesisScore.toFixed(2)}`,
+    `  • S_cross (Cross-Modal Discordance):${vec.crossModalDiscordanceScore.toFixed(2)}`,
+    `  • S_ident (Identity Mismatch):       ${vec.identityMismatchScore.toFixed(2)}`,
+    `  • S_context (Contextual Anomaly):   ${vec.contextualAnomalyScore.toFixed(2)}`,
+    `  • U_epistemic (Uncertainty):         ${vec.epistemicUncertainty.toFixed(2)}`,
+    ``,
+    `Core Finding: ${v.verdictSummary?.headline || ""} — ${v.verdictSummary?.coreAnomaly || ""}`,
+    `Judicial Ruling: ${v.adversarialDialectic?.judicialSynthesis || "Human verification required"}`,
+    `Notice: ${v.verdictSummary?.noScoreIsProofNotice || "No score is proof"}`
+  ].join("\n");
+  try {
+    await navigator.clipboard.writeText(brief);
+    const statusEl = byId("copy-brief-status");
+    if (statusEl) {
+      statusEl.textContent = "✓ Brief copied to clipboard";
+      setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
+    }
+  } catch {
+    const statusEl = byId("copy-brief-status");
+    if (statusEl) statusEl.textContent = "Clipboard access unavailable; use JSON export";
+  }
+}
+
 byId("scenario-select").addEventListener("change", scenarioChanged);
 byId("btn-run-inspection").addEventListener("click", inspect);
 byId("media-dropzone").addEventListener("click", () => byId("file-input").click());
@@ -507,6 +617,8 @@ for (const id of ["target-name", "target-handle", "message-text"]) byId(id).addE
 for (const id of ["analyst-id", "audit-notes", "final-decision"]) byId(id).addEventListener("input", updateAudit);
 byId("btn-sign-audit").addEventListener("click", signAudit);
 byId("btn-canary").addEventListener("click", generateCanary);
+if (byId("btn-export-dossier")) byId("btn-export-dossier").addEventListener("click", exportDossier);
+if (byId("btn-copy-brief")) byId("btn-copy-brief").addEventListener("click", copyBrief);
 initSandbox();
 health();
 setInterval(health, 30000);
