@@ -32,13 +32,13 @@ Preserve response distinctions between complete multimodal inspections and incom
 
 Keep collection opt-in, profile-scoped and transient. No post/feed/message scraping, raw storage, broad new host permissions or social endpoint requests. Stop, route change and tab lifecycle events must discard stale data. Automatic re-evaluation is debounced with no more than one request per five seconds. Propose any payload or permission expansion in `contracts/proposals/achumit/<topic>.md`; v1-compatible work continues independently.
 
-## Next work, in order
+## Completed deliverables (AC-1, AC-2, AC-3)
 
-1. **AC-1: complete the three-platform fixture matrix.** Add positive Instagram/LinkedIn fixtures and negative cases for missing/mismatched header, hidden duplicate header, stale canonical route, malformed URL, unavailable avatar and CORS rejection. Refine only the adapter whose fixture fails. Include obvious feed/DM text in fixtures and prove it never enters the payload. Preserve the existing X tests.
-2. **AC-2: harden monitoring lifecycle.** Add repeated Start/Stop, rapid same-tab profile navigation, mutation bursts, service-worker/network failure and retry cases. Prove one observer/timer set per active inspection, bounded automatic requests, no late render after Stop/navigation, and disposal of raw avatar pixels after a response or error.
-3. **AC-3: test popup and panel usability.** Add renderer/popup coverage for complete versus incomplete advisories, homoglyph code-point explanations, keyboard expansion/close, offline/retry states and unavailable dimensions. Treat profile text as untrusted text, never executable markup. Keep notices readable at narrow popup widths and 200% zoom.
+1. **AC-1: complete the three-platform fixture matrix.** [Completed] Delivered in `extension/tests/fixtures.cjs` and `extension/tests/platforms.test.cjs`. Covers positive and fail-closed cases for X, Instagram, and LinkedIn; feed and DM text isolation verified; malformed canonical handling hardened in `extension/content.js`.
+2. **AC-2: harden monitoring lifecycle.** [Completed] Delivered in `extension/tests/lifecycle.test.cjs`. Proves single observer/timer invariants, rapid same-tab SPA navigation discards, mutation burst rate-limiting (≤ 1 req / 5s), connection error resilience, and guaranteed raw pixel disposal.
+3. **AC-3: test popup and panel usability.** [Completed] Delivered in `extension/tests/ui.test.cjs`. Validates complete vs. incomplete advisories (continuous score strictly withheld as `—` when incomplete), unavailable dimensions safely rendered, strict untrusted text handling (XSS injection prevention), homoglyph code-point explanations, and keyboard/ARIA focus management.
 
-Ship one PR per item. Optional live validation may document the platform, date and layout observed on profiles you are authorized to inspect; use sanitized observations and never commit personal profile snapshots. Automated tests must remain runnable offline without accounts.
+Full test suite and execution records are documented in `extension/VALIDATION.md` (47/47 passing tests).
 
 ## Acceptance and delivery
 
