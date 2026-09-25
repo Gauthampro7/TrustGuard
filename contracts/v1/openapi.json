@@ -1017,6 +1017,28 @@
             "title": "Displayname",
             "type": "string"
           },
+          "followersCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followerscount"
+          },
+          "followingCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Followingcount"
+          },
           "handle": {
             "maxLength": 200,
             "minLength": 1,
@@ -1028,6 +1050,43 @@
             "maxLength": 32,
             "title": "Platform",
             "type": "string"
+          },
+          "postImagesPixels": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "items": {
+                      "maximum": 255.0,
+                      "minimum": 0.0,
+                      "type": "number"
+                    },
+                    "maxItems": 256,
+                    "minItems": 16,
+                    "type": "array"
+                  },
+                  "maxItems": 256,
+                  "minItems": 16,
+                  "type": "array"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postimagespixels"
+          },
+          "postsCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postscount"
           },
           "referenceHandle": {
             "anyOf": [

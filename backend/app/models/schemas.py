@@ -289,11 +289,23 @@ class ProfileEvaluationRequest(BaseModel):
     accountCreatedDate: Optional[str] = None
     avatarPixels: Optional[PixelMatrix] = None
     referenceHandle: Optional[str] = Field(None, max_length=200)
+    postImagesPixels: Optional[List[PixelMatrix]] = None
+    postsCount: Optional[int] = None
+    followersCount: Optional[int] = None
+    followingCount: Optional[int] = None
 
     @field_validator("avatarPixels")
     @classmethod
     def rectangular_avatar(cls, value):
         return EvidenceSamples.rectangular_pixels(value)
+
+    @field_validator("postImagesPixels")
+    @classmethod
+    def rectangular_post_images(cls, value):
+        if value is not None:
+            for item in value:
+                EvidenceSamples.rectangular_pixels(item)
+        return value
 
 
 class ProfileEvaluationResponse(BaseModel):

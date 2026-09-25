@@ -112,6 +112,37 @@
       avatar = firstVisible(header, "img.pv-top-card-profile-picture__image--show, img.pv-top-card-profile-picture__image, img.profile-photo-edit__preview, img.top-card-layout__entity-image");
     }
     if (!displayName) throw new Error("The public profile name is not available yet.");
+
+    let postsCount = null;
+    let followersCount = null;
+    let followingCount = null;
+    let postCandidates = [];
+
+    const headerElement = identity.platform === "twitter"
+      ? (firstVisible(main, "[data-testid='UserProfileHeader_Items']") || firstVisible(main, "header"))
+      : firstVisible(main, "header, section, .pv-top-card, .top-card-layout");
+    const statsContainerText = headerElement ? text(headerElement) : "";
+
+    const postsMatch = statsContainerText.match(/(\d[\d,.]*)\s*(?:k|m|b)?\s*(?:posts?|tweets?)/i);
+    const followersMatch = statsContainerText.match(/(\d[\d,.]*)\s*(?:k|m|b)?\s*followers?/i);
+    const followingMatch = statsContainerText.match(/(\d[\d,.]*)\s*(?:k|m|b)?\s*following/i);
+    const connMatch = statsContainerText.match(/(\d[\d,.]*)\s*(?:k|m|b)?\s*connections?/i);
+
+    const parseNum = m => m ? Math.round(parseFloat(m[1].replace(/,/g, "")) * (m[0].toLowerCase().includes("k") ? 1000 : m[0].toLowerCase().includes("m") ? 1000000 : 1)) : null;
+
+    if (postsMatch) postsCount = parseNum(postsMatch);
+    if (followersMatch) followersCount = parseNum(followersMatch);
+    else if (connMatch) followersCount = parseNum(connMatch);
+    if (followingMatch) followingCount = parseNum(followingMatch);
+
+    if (identity.platform === "instagram") {
+      postCandidates = Array.from(main.querySelectorAll("article img, a[href*='/p/'] img, [role='tabpanel'] img"))
+        .filter(img => visible(img) && img !== avatar && (img.naturalWidth >= 16 || img.width >= 16));
+    } else if (identity.platform === "twitter") {
+      postCandidates = Array.from(main.querySelectorAll("[data-testid='tweetPhoto'] img, article img"))
+        .filter(img => visible(img) && img !== avatar && (img.naturalWidth >= 16 || img.width >= 16));
+    }
+
     const payload = {
       ...identity,
       displayName: displayName.slice(0, 256),
@@ -119,7 +150,16 @@
     };
     if (avatar?.currentSrc || avatar?.src) payload.avatarUrl = avatar.currentSrc || avatar.src;
     if (referenceHandle) payload.referenceHandle = referenceHandle;
-    return { payload, avatar };
+    if (postsCount !== null) payload.postsCount = postsCount;
+    if (followersCount !== null) payload.followersCount = followersCount;
+    if (followingCount !== null) payload.followingCount = followingCount;
+    const statsSummary = [
+      postsCount !== null ? `${postsCount} posts` : null,
+      followersCount !== null ? `${followersCount} followers` : null,
+      followingCount !== null ? `${followingCount} following` : null
+    ].filter(Boolean).join(" · ");
+    if (statsSummary) payload.accountCreatedDate = statsSummary;
+    return { payload, avatar, postCandidates };
   }
 
   function sampleAvatar(image) {
@@ -216,6 +256,15 @@
     const ticket = ++generation;
     const avatar = sampleAvatar(observation.avatar);
     if (avatar.pixels) observation.payload.avatarPixels = avatar.pixels;
+    const postPixelsList = [];
+    if (Array.isArray(observation.postCandidates)) {
+      for (const img of observation.postCandidates.slice(0, 3)) {
+        const sample = sampleAvatar(img);
+        if (sample && sample.pixels) postPixelsList.push(sample.pixels);
+      }
+    }
+    if (postPixelsList.length) observation.payload.postImagesPixels = postPixelsList;
+
     pending = (async () => {
       let response;
       try {
@@ -226,13 +275,23 @@
         // The raw downsample is transient; keep only the evidence response in memory.
         delete observation.payload.avatarPixels;
         if (avatar.pixels) avatar.pixels.length = 0;
+        if (observation.payload.postImagesPixels) {
+          observation.payload.postImagesPixels.forEach(p => { if (Array.isArray(p)) p.length = 0; });
+          delete observation.payload.postImagesPixels;
+        }
+        postPixelsList.forEach(p => { if (Array.isArray(p)) p.length = 0; });
+        postPixelsList.length = 0;
       }
       if (!enabled || routeKey() !== currentRoute || ticket !== generation) {
         return { success: false, error: "The profile changed during inspection. Inspect the current profile again.", enabled };
       }
+      const notes = avatar.note ? [avatar.note] : [];
+      if (postPixelsList.length) {
+        notes.push(`${postPixelsList.length} post image(s) screened for generative artifacts.`);
+      }
       cached = { ...(response || { success: false, error: "The local engine did not respond." }),
         enabled, profile: { platform: observation.payload.platform, handle: observation.payload.handle },
-        observationNotes: avatar.note ? [avatar.note] : [] };
+        observationNotes: notes };
       showPanel(cached);
       return cached;
     })();

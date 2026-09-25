@@ -12,7 +12,7 @@
     "identityMismatchScore": 0.0,
     "mediaSynthesisScore": 0.0
   },
-  "continuousAuthenticityScore": 0.1,
+  "continuousAuthenticityScore": 0.79,
   "evidenceLedger": [
     {
       "affectedSpan": null,
