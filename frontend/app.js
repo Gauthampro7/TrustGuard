@@ -4,9 +4,11 @@
 const API_ORIGIN = "http://127.0.0.1:8000";
 const API_BASE = `${API_ORIGIN}/api/v1`;
 const byId = id => document.getElementById(id);
-const state = { revision: 0, controller: null, fixture: null, media: [], verdict: null, busy: false, signing: false };
+const state = { revision: 0, controller: null, fixture: null, media: [], verdict: null, busy: false, signing: false, originalBundle: null };
 const dimensions = { media: "mediaSynthesisScore", cross: "crossModalDiscordanceScore", ident: "identityMismatchScore", context: "contextualAnomalyScore", uncertainty: "epistemicUncertainty" };
 const tiers = { BENIGN_AUTHENTIC: "LOW OBSERVED ANOMALY · VERIFY INDEPENDENTLY", LOW_RISK_VERIFIED: "LOW OBSERVED ANOMALY · VERIFY INDEPENDENTLY", UNCERTAIN_COMPRESSION_NOISE: "INCONCLUSIVE / DEGRADED EVIDENCE", SUSPICIOUS_ANOMALY: "ANOMALIES REQUIRE VERIFICATION", HIGH_IMPERSONATION_RISK: "ELEVATED IMPERSONATION INDICATORS" };
+
+let copyStatusTimer = null;
 
 function node(tag, text, className) {
   const element = document.createElement(tag);
@@ -19,7 +21,6 @@ function status(message, error = false) {
   const target = byId("operation-status");
   target.textContent = message;
   target.classList.toggle("error", error);
-  target.hidden = !message;
 }
 
 function busy(value, label = "Inspecting evidence…") {
@@ -35,6 +36,8 @@ function resetResult() {
   state.verdict = null;
   byId("verdict-banner").className = "verdict-banner";
   byId("verdict-tier").textContent = "READY TO INSPECT";
+  const verdictBadge = byId("verdict-badge");
+  if (verdictBadge) { verdictBadge.textContent = ""; verdictBadge.className = "verdict-badge"; }
   byId("verdict-headline").textContent = "Every signal needs context.";
   byId("verdict-detail").textContent = "Inspect the current bundle to see its assessment.";
   byId("run-metadata").textContent = "";
@@ -74,6 +77,32 @@ function invalidate() {
   return state.revision;
 }
 
+function snapshotOriginalBundle() {
+  state.originalBundle = {
+    targetName: byId("target-name").value,
+    targetHandle: byId("target-handle").value,
+    messageText: byId("message-text").value,
+    media: structuredClone(state.media),
+    fixture: state.fixture ? structuredClone(state.fixture) : null
+  };
+}
+
+function onInputChange() {
+  if (state.originalBundle) {
+    const slider = byId("sandbox-degradation");
+    const isPerturbed = (slider && Number(slider.value) > 0) ||
+      byId("sandbox-homoglyph")?.checked ||
+      byId("sandbox-urgency")?.checked ||
+      byId("sandbox-canary")?.checked;
+    if (!isPerturbed) {
+      state.originalBundle.targetName = byId("target-name").value;
+      state.originalBundle.targetHandle = byId("target-handle").value;
+      state.originalBundle.messageText = byId("message-text").value;
+    }
+  }
+  invalidate();
+}
+
 async function api(path, options = {}) {
   const ownController = options.signal ? null : new AbortController();
   const timer = ownController ? setTimeout(() => ownController.abort(), 20000) : null;
@@ -81,7 +110,21 @@ async function api(path, options = {}) {
     const response = await fetch(`${API_BASE}${path}`, { ...options, signal: options.signal || ownController.signal, headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers } });
     const payload = await response.json().catch(() => null);
     if (!response.ok) {
-      const detail = typeof payload?.detail === "string" ? payload.detail : Array.isArray(payload?.detail) ? payload.detail.map(item => item.msg).join("; ") : `Local engine returned HTTP ${response.status}.`;
+      let detail = `Local engine returned HTTP ${response.status}.`;
+      if (typeof payload?.detail === "string") {
+        detail = payload.detail;
+      } else if (Array.isArray(payload?.detail)) {
+        detail = payload.detail.map(item => {
+          if (typeof item === "string") return item;
+          const loc = Array.isArray(item?.loc) ? item.loc.filter(l => l !== "body").join(".") : "";
+          const msg = item?.msg || item?.message || JSON.stringify(item);
+          return loc ? `${loc}: ${msg}` : msg;
+        }).join("; ");
+      } else if (typeof payload?.message === "string") {
+        detail = payload.message;
+      } else if (typeof payload?.error === "string") {
+        detail = payload.error;
+      }
       throw new Error(detail);
     }
     if (!payload) throw new Error("The local engine returned an unreadable response.");
@@ -148,7 +191,10 @@ async function decode(file, index) {
     if (!AudioContextClass || !window.OfflineAudioContext) throw new Error("Your browser does not support local audio decoding.");
     const context = new AudioContextClass();
     try {
-      const audio = await context.decodeAudioData(await file.arrayBuffer());
+      const arrayBuf = await file.arrayBuffer();
+      const decodePromise = context.decodeAudioData(arrayBuf);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error(`${file.name}: audio decoding timed out.`)), 12000));
+      const audio = await Promise.race([decodePromise, timeoutPromise]);
       const duration = Math.min(6, audio.duration);
       if (duration < .1) throw new Error("Audio evidence must contain at least 0.1 seconds of decoded samples.");
       const offline = new OfflineAudioContext(1, Math.max(1, Math.floor(duration * 16000)), 16000);
@@ -198,6 +244,7 @@ async function chooseFiles(files) {
   const revision = invalidate();
   state.fixture = null;
   state.media = [];
+  state.originalBundle = null;
   byId("scenario-select").value = "none";
   byId("scenario-notice").hidden = true;
   renderMedia();
@@ -207,9 +254,13 @@ async function chooseFiles(files) {
   status("Decoding media in this browser. Original files are not uploaded.");
   try {
     const prepared = [];
-    for (const [index, file] of Array.from(files).entries()) prepared.push(await decode(file, index));
-    if (revision !== state.revision) return;
+    for (const [index, file] of Array.from(files).entries()) {
+      if (revision !== state.revision) return;
+      prepared.push(await decode(file, index));
+      if (revision !== state.revision) return;
+    }
     state.media = prepared;
+    snapshotOriginalBundle();
     renderMedia();
     status("Media prepared. Add the accompanying text, then inspect the bundle.");
   } catch (error) {
@@ -222,6 +273,7 @@ async function scenarioChanged() {
   const revision = invalidate();
   state.fixture = null;
   state.media = [];
+  state.originalBundle = null;
   renderMedia();
   byId("scenario-notice").hidden = true;
   byId("message-text").value = "";
@@ -240,6 +292,7 @@ async function scenarioChanged() {
     byId("message-text").value = scenario.request.evidenceItems.filter(item => item.modality === "text").map(item => item.textContent || "").join("\n\n");
     byId("scenario-notice").textContent = `SIMULATION · ${scenario.title}. ${scenario.description} These pre-indexed synthetic samples demonstrate the pipeline; their labels are scenario assumptions, not detector proof.`;
     byId("scenario-notice").hidden = false;
+    snapshotOriginalBundle();
     renderMedia();
     status("Simulated case loaded. Select Inspect evidence to run the local extractors.");
   } catch (error) {
@@ -266,9 +319,45 @@ function setBar(id, value) {
   const bar = byId(`bar-${id}`);
   bar.style.width = `${bounded * 100}%`;
   byId(`val-${id}`).textContent = valid ? bounded.toFixed(2) : "—";
+  const badge = byId(`badge-${id}`);
+  let qualitative = "Not evaluated";
+  if (badge) {
+    if (!valid) {
+      badge.textContent = "—";
+      badge.className = "dim-badge";
+    } else if (id === "uncertainty") {
+      if (bounded >= .50) {
+        badge.textContent = "ELEVATED";
+        badge.className = "dim-badge badge-elevated-uncertainty";
+        qualitative = `${bounded.toFixed(2)} - Elevated uncertainty (suspicion scores capped)`;
+      } else if (bounded >= .25) {
+        badge.textContent = "MODERATE";
+        badge.className = "dim-badge badge-moderate";
+        qualitative = `${bounded.toFixed(2)} - Moderate uncertainty`;
+      } else {
+        badge.textContent = "LOW";
+        badge.className = "dim-badge badge-low";
+        qualitative = `${bounded.toFixed(2)} - Low uncertainty`;
+      }
+    } else {
+      if (bounded >= .65) {
+        badge.textContent = "HIGH";
+        badge.className = "dim-badge badge-high";
+        qualitative = `${bounded.toFixed(2)} - High anomaly indicator`;
+      } else if (bounded >= .35) {
+        badge.textContent = "MODERATE";
+        badge.className = "dim-badge badge-moderate";
+        qualitative = `${bounded.toFixed(2)} - Moderate anomaly indicator`;
+      } else {
+        badge.textContent = "LOW";
+        badge.className = "dim-badge badge-low";
+        qualitative = `${bounded.toFixed(2)} - Low anomaly indicator`;
+      }
+    }
+  }
   if (valid) bar.parentElement.setAttribute("aria-valuenow", bounded.toFixed(3));
   else bar.parentElement.removeAttribute("aria-valuenow");
-  bar.parentElement.setAttribute("aria-valuetext", valid ? `${bounded.toFixed(2)} heuristic index` : "Not evaluated");
+  bar.parentElement.setAttribute("aria-valuetext", qualitative);
 }
 
 function renderVerdict(verdict) {
@@ -278,6 +367,19 @@ function renderVerdict(verdict) {
   const uncertain = vector.epistemicUncertainty >= .5;
   byId("verdict-banner").className = `verdict-banner ${uncertain ? "uncertain" : /SUSPICIOUS|HIGH_/.test(verdict.assessmentTier) ? "suspicious" : ""}`;
   byId("verdict-tier").textContent = `${state.fixture ? "SIMULATION · " : ""}${tiers[verdict.assessmentTier] || "ASSESSMENT REQUIRES REVIEW"}`;
+  const verdictBadge = byId("verdict-badge");
+  if (verdictBadge) {
+    if (uncertain) {
+      verdictBadge.textContent = "❓ HIGH UNCERTAINTY (U ≥ 0.50) · CAPPED";
+      verdictBadge.className = "verdict-badge badge-uncertain";
+    } else if (/SUSPICIOUS|HIGH_/.test(verdict.assessmentTier)) {
+      verdictBadge.textContent = "⚠️ ELEVATED ANOMALY";
+      verdictBadge.className = "verdict-badge badge-suspicious";
+    } else {
+      verdictBadge.textContent = "🛡️ LOW ANOMALY";
+      verdictBadge.className = "verdict-badge badge-low-risk";
+    }
+  }
   byId("verdict-headline").textContent = verdict.verdictSummary?.headline || "Inspection complete";
   byId("verdict-detail").textContent = verdict.verdictSummary?.coreAnomaly || "Review the ledger and verification steps.";
   for (const [id, key] of Object.entries(dimensions)) setBar(id, vector[key]);
@@ -391,16 +493,16 @@ function renderVerdict(verdict) {
       const videoItem = state.media.find(m => m.item?.modality === "video" && m.item?.samples?.audioEnvelope);
       if (videoItem?.item?.samples) {
         hasViz = true;
-        const env = videoItem.item.samples.audioEnvelope;
+        const envSample = videoItem.item.samples.audioEnvelope;
         const mouth = videoItem.item.samples.mouthAperture;
-        if (env && mouth && env.length) {
+        if (envSample && mouth && envSample.length) {
           ctx.strokeStyle = "#376fd2";
           ctx.lineWidth = 1.5;
           ctx.beginPath();
-          const step = Math.min(80, env.length);
+          const step = Math.min(80, envSample.length);
           for (let i = 0; i < step; i++) {
             const x = 20 + (i / step) * 240;
-            const y = 75 - (env[i] || 0) * 50;
+            const y = 75 - (envSample[i] || 0) * 50;
             if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
           }
           ctx.stroke();
@@ -450,8 +552,14 @@ function updateAudit() {
 
 function safeApiLink(url, label) {
   if (typeof url !== "string" || !url) throw new Error("Certificate link missing from the local engine response.");
-  const resolved = new URL(url, API_ORIGIN);
+  let resolved;
+  try {
+    resolved = new URL(url, API_ORIGIN);
+  } catch {
+    throw new Error("Invalid certificate link returned by engine.");
+  }
   if (resolved.origin !== API_ORIGIN) throw new Error("Certificate link must point to the local TrustGuard backend.");
+  if (resolved.protocol !== "http:" && resolved.protocol !== "https:") throw new Error("Certificate link has untrusted protocol.");
   const link = node("a", label);
   link.href = resolved.href;
   link.target = "_blank";
@@ -503,57 +611,96 @@ function initSandbox() {
   const slider = byId("sandbox-degradation");
   const valLabel = byId("sandbox-degradation-val");
   if (!slider || !valLabel) return;
-  slider.addEventListener("input", () => { valLabel.textContent = `${slider.value}%`; });
+  slider.addEventListener("input", () => {
+    valLabel.textContent = `${slider.value}%`;
+    slider.setAttribute("aria-valuenow", slider.value);
+    slider.setAttribute("aria-valuetext", `${slider.value}% channel degradation`);
+  });
+
   byId("btn-apply-sandbox").addEventListener("click", () => {
+    if (!state.originalBundle) {
+      snapshotOriginalBundle();
+    }
+    const baseBundle = state.originalBundle;
+    if (!baseBundle) return;
+
+    let handle = baseBundle.targetHandle;
+    let text = baseBundle.messageText;
+    let name = baseBundle.targetName;
+    let media = structuredClone(baseBundle.media);
+    let fixture = baseBundle.fixture ? structuredClone(baseBundle.fixture) : null;
+
     const degradation = Number(slider.value) / 100;
-    if (degradation > 0) {
-      for (const m of state.media) {
-        m.item.metadata = m.item.metadata || {};
-        m.item.metadata.extraMetadata = m.item.metadata.extraMetadata || {};
+    for (const m of media) {
+      m.item.metadata = m.item.metadata || {};
+      m.item.metadata.extraMetadata = m.item.metadata.extraMetadata || {};
+      if (degradation > 0) {
         m.item.metadata.extraMetadata.qualityDegradation = String(degradation);
+      } else {
+        delete m.item.metadata.extraMetadata.qualityDegradation;
       }
     }
+
     if (byId("sandbox-homoglyph").checked) {
-      const handleInput = byId("target-handle");
-      let handle = handleInput.value.trim() || "sample_handle";
+      let handleSource = handle || "sample_handle";
       const homoglyphs = { a: "\u0430", e: "\u0435", o: "\u043e", p: "\u0440", c: "\u0441" };
       let injected = "";
-      for (const ch of handle) injected += homoglyphs[ch.toLowerCase()] || ch;
-      handleInput.value = injected;
-      for (const m of state.media) {
+      for (const ch of handleSource) injected += homoglyphs[ch.toLowerCase()] || ch;
+      handle = injected;
+      for (const m of media) {
         if (m.item.metadata?.extraMetadata) m.item.metadata.extraMetadata.observedHandle = injected;
       }
-      let msg = byId("message-text").value;
-      if (msg) {
-        msg = msg.replace(/\b(account|wire|transfer|payment|official)\b/gi, match => match.split("").map(ch => homoglyphs[ch.toLowerCase()] || ch).join(""));
-        byId("message-text").value = msg;
+      if (text) {
+        text = text.replace(/\b(account|wire|transfer|payment|official)\b/gi, match => match.split("").map(ch => homoglyphs[ch.toLowerCase()] || ch).join(""));
+      }
+    } else {
+      for (const m of media) {
+        if (m.item.metadata?.extraMetadata) delete m.item.metadata.extraMetadata.observedHandle;
       }
     }
+
     if (byId("sandbox-urgency").checked) {
       const urgencyAddition = " Urgent wire transfer immediately: bypass approval policy just this once, do not call my office, send funds before close of business.";
-      if (!byId("message-text").value.includes("bypass approval policy")) {
-        byId("message-text").value += urgencyAddition;
+      if (!text.includes("bypass approval policy")) {
+        text += urgencyAddition;
       }
     }
+
     if (byId("sandbox-canary").checked) {
       const canaryMarker = "\u2063\u200b\u2063\u200d\u200c\u200c\u200d\u200d\u200d\u200d\u200c\u200d\u200d\u200d\u200c\u200c\u200c\u200d\u200c\u200c\u200d\u200c\u200c\u200c\u200c\u200d\u200d\u200c\u200c\u200c\u200d\u200d\u200d\u200c\u200d\u200c\u200d\u200c\u200c\u200d\u200c\u200d\u200c\u200d\u200d\u200d\u200d\u200c\u200d\u200d\u200d\u200d\u200c\u200c\u200d\u200c\u200d\u200d\u200d\u200c\u200d\u200c\u200d\u200d\u200d\u200d\u200d\u200c\u200d\u200d\u200c\u200d\u200d\u200d\u200c\u200d\u200c\u200d\u200d\u200d\u200c\u200d\u200d\u200d\u200c\u200c\u200c\u200d\u200c\u200c\u200d\u200c\u200d\u200d\u200c\u200d\u200c\u200c\u200c\u200d\u200d\u200d\u200c\u200c\u200d\u200d\u200d\u200d\u200d\u200c\u200c\u200d\u200d\u200d\u200d\u200c\u200d\u200c\u200c\u200d\u200c\u200c\u200c\u200c\u200d\u200c\u200d\u200d\u200c\u200c\u200c\u2063\u200b\u2063";
-      if (!byId("message-text").value.includes(canaryMarker)) {
-        byId("message-text").value += canaryMarker;
+      if (!text.includes(canaryMarker)) {
+        text += canaryMarker;
       }
     }
+
+    byId("target-name").value = name;
+    byId("target-handle").value = handle;
+    byId("message-text").value = text;
+    state.media = media;
+    state.fixture = fixture;
+    renderMedia();
     inspect();
   });
+
   byId("btn-reset-sandbox").addEventListener("click", () => {
     slider.value = 0;
     valLabel.textContent = "0%";
+    slider.setAttribute("aria-valuenow", "0");
+    slider.setAttribute("aria-valuetext", "0% channel degradation");
     byId("sandbox-homoglyph").checked = false;
     byId("sandbox-urgency").checked = false;
     byId("sandbox-canary").checked = false;
-    if (byId("scenario-select").value !== "none") {
-      scenarioChanged();
-    } else {
-      invalidate();
+
+    if (state.originalBundle) {
+      byId("target-name").value = state.originalBundle.targetName;
+      byId("target-handle").value = state.originalBundle.targetHandle;
+      byId("message-text").value = state.originalBundle.messageText;
+      state.media = structuredClone(state.originalBundle.media);
+      state.fixture = state.originalBundle.fixture ? structuredClone(state.originalBundle.fixture) : null;
+      renderMedia();
     }
+    invalidate();
+    status("Sandbox perturbations reset. Original evidence restored.");
   });
 }
 
@@ -592,12 +739,13 @@ async function copyBrief() {
     `Judicial Ruling: ${v.adversarialDialectic?.judicialSynthesis || "Human verification required"}`,
     `Notice: ${v.verdictSummary?.noScoreIsProofNotice || "No score is proof"}`
   ].join("\n");
+  if (copyStatusTimer) { clearTimeout(copyStatusTimer); copyStatusTimer = null; }
   try {
     await navigator.clipboard.writeText(brief);
     const statusEl = byId("copy-brief-status");
     if (statusEl) {
       statusEl.textContent = "✓ Brief copied to clipboard";
-      setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
+      copyStatusTimer = setTimeout(() => { if (statusEl) statusEl.textContent = ""; }, 3000);
     }
   } catch {
     const statusEl = byId("copy-brief-status");
@@ -613,12 +761,37 @@ byId("media-dropzone").addEventListener("dragover", event => { event.preventDefa
 byId("media-dropzone").addEventListener("dragleave", () => byId("media-dropzone").classList.remove("dragging"));
 byId("media-dropzone").addEventListener("drop", event => { event.preventDefault(); byId("media-dropzone").classList.remove("dragging"); chooseFiles(event.dataTransfer.files); });
 byId("clear-media").addEventListener("click", () => chooseFiles([]));
-for (const id of ["target-name", "target-handle", "message-text"]) byId(id).addEventListener("input", invalidate);
-for (const id of ["analyst-id", "audit-notes", "final-decision"]) byId(id).addEventListener("input", updateAudit);
+for (const id of ["target-name", "target-handle", "message-text"]) byId(id).addEventListener("input", onInputChange);
+for (const id of ["analyst-id", "audit-notes"]) byId(id).addEventListener("input", updateAudit);
+byId("final-decision").addEventListener("input", updateAudit);
+byId("final-decision").addEventListener("change", updateAudit);
 byId("btn-sign-audit").addEventListener("click", signAudit);
 byId("btn-canary").addEventListener("click", generateCanary);
 if (byId("btn-export-dossier")) byId("btn-export-dossier").addEventListener("click", exportDossier);
 if (byId("btn-copy-brief")) byId("btn-copy-brief").addEventListener("click", copyBrief);
+const btnCopyCanary = byId("btn-copy-canary");
+if (btnCopyCanary) {
+  btnCopyCanary.addEventListener("click", async () => {
+    const out = byId("canary-output");
+    if (!out.value) return;
+    const st = byId("canary-copy-status");
+    try {
+      await navigator.clipboard.writeText(out.value);
+      if (st) {
+        st.textContent = "✓ Marked text copied";
+        setTimeout(() => { if (st) st.textContent = ""; }, 3000);
+      }
+    } catch {
+      out.select();
+      document.execCommand("copy");
+      if (st) {
+        st.textContent = "✓ Marked text copied";
+        setTimeout(() => { if (st) st.textContent = ""; }, 3000);
+      }
+    }
+  });
+}
+
 initSandbox();
 health();
 setInterval(health, 30000);

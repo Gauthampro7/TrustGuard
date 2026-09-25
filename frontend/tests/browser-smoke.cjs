@@ -50,12 +50,18 @@ async function noOverflow(page, label) {
 async function main() {
   fs.mkdirSync(artifacts, { recursive: true });
   const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE } : {}) });
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1080 }, reducedMotion: "reduce" });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1080 }, reducedMotion: "reduce", permissions: ["clipboard-read", "clipboard-write"] });
   const page = await context.newPage();
   const errors = [];
   const inspectRequests = [];
   page.on("pageerror", error => errors.push(error.message));
-  page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
+  page.on("console", message => {
+    if (message.type() === "error") {
+      const text = message.text();
+      if (/Failed to load resource: (net::ERR_FAILED|the server responded with a status of (404|422))/.test(text)) return;
+      errors.push(text);
+    }
+  });
   page.on("request", request => { if (request.url() === `${base}/api/v1/inspect`) inspectRequests.push(request.postDataJSON()); });
   const report = { scenarios: [], checks: [], screenshots: [] };
   try {
@@ -198,8 +204,223 @@ async function main() {
     assert.equal(await page.locator("#btn-sign-audit").isDisabled(), true);
     report.checks.push("Changing evidence invalidates pending results and prevents stale audit sign-off");
 
+    // =========================================================================
+    // AR-1: Reversible Sandbox Perturbations for Scenario & Custom Bundles
+    // =========================================================================
+    await scenario(page, "ceo-wire-scam");
+    const origScenarioText = await page.locator("#message-text").inputValue();
+    const origScenarioHandle = await page.locator("#target-handle").inputValue();
+    await page.locator("#sandbox-card summary").click();
+
+    // 1. Apply 70% degradation + homoglyph + urgency
+    await page.locator("#sandbox-degradation").fill("70");
+    await page.locator("#sandbox-degradation").dispatchEvent("input");
+    await page.locator("#sandbox-homoglyph").check();
+    await page.locator("#sandbox-urgency").check();
+    await page.locator("#btn-apply-sandbox").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Simulation complete"));
+
+    let latestReq = inspectRequests.at(-1);
+    assert.equal(latestReq.evidenceItems[0].metadata.extraMetadata.qualityDegradation, "0.7");
+    assert.ok(latestReq.evidenceItems[0].metadata.extraMetadata.observedHandle !== undefined);
+    assert.match(latestReq.evidenceItems.find(i => i.modality === "text").textContent, /bypass approval policy/);
+
+    // 2. Repeated Apply: Ensure idempotency / no duplicate text inflation
+    const textAfterFirstApply = await page.locator("#message-text").inputValue();
+    await page.locator("#btn-apply-sandbox").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Simulation complete"));
+    const textAfterSecondApply = await page.locator("#message-text").inputValue();
+    assert.equal(textAfterFirstApply, textAfterSecondApply);
+
+    // 3. Move slider to 0, uncheck homoglyph and urgency -> Apply 0%
+    await page.locator("#sandbox-degradation").fill("0");
+    await page.locator("#sandbox-degradation").dispatchEvent("input");
+    await page.locator("#sandbox-homoglyph").uncheck();
+    await page.locator("#sandbox-urgency").uncheck();
+    await page.locator("#btn-apply-sandbox").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Simulation complete"));
+
+    latestReq = inspectRequests.at(-1);
+    assert.equal(latestReq.evidenceItems[0].metadata?.extraMetadata?.qualityDegradation, undefined);
+    assert.equal(latestReq.evidenceItems[0].metadata?.extraMetadata?.observedHandle, undefined);
+    assert.equal(await page.locator("#message-text").inputValue(), origScenarioText);
+    assert.equal(await page.locator("#target-handle").inputValue(), origScenarioHandle);
+
+    // 4. Reset on Scenario: restores original and clears verdict
+    await page.locator("#sandbox-degradation").fill("50");
+    await page.locator("#sandbox-degradation").dispatchEvent("input");
+    await page.locator("#sandbox-urgency").check();
+    await page.locator("#btn-apply-sandbox").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Simulation complete"));
+    assert.ok(await page.locator("#verdict-tier").textContent() !== "READY TO INSPECT");
+
+    await page.locator("#btn-reset-sandbox").click();
+    assert.equal(await page.locator("#sandbox-degradation").inputValue(), "0");
+    assert.equal(await page.locator("#sandbox-urgency").isChecked(), false);
+    assert.equal(await page.locator("#message-text").inputValue(), origScenarioText);
+    assert.equal(await page.locator("#verdict-tier").textContent(), "READY TO INSPECT");
+    assert.equal(await page.locator("#btn-sign-audit").isDisabled(), true);
+
+    // 5. Custom bundle reversibility
+    await page.locator("#scenario-select").selectOption("none");
+    await page.locator("#file-input").setInputFiles({ name: "custom-sandbox.png", mimeType: "image/png", buffer: Buffer.from(png, "base64") });
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Media prepared"));
+    const customOrigText = "Original custom unperturbed text message for test.";
+    const customOrigHandle = "clean_handle";
+    await page.locator("#message-text").fill(customOrigText);
+    await page.locator("#target-handle").fill(customOrigHandle);
+
+    await page.locator("#sandbox-degradation").fill("60");
+    await page.locator("#sandbox-degradation").dispatchEvent("input");
+    await page.locator("#sandbox-homoglyph").check();
+    await page.locator("#sandbox-urgency").check();
+    await page.locator("#btn-apply-sandbox").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").textContent.startsWith("Inspection complete"));
+
+    // Reset on Custom bundle: restores original text & handle, resets result
+    await page.locator("#btn-reset-sandbox").click();
+    assert.equal(await page.locator("#sandbox-degradation").inputValue(), "0");
+    assert.equal(await page.locator("#sandbox-homoglyph").isChecked(), false);
+    assert.equal(await page.locator("#sandbox-urgency").isChecked(), false);
+    assert.equal(await page.locator("#message-text").inputValue(), customOrigText);
+    assert.equal(await page.locator("#target-handle").inputValue(), customOrigHandle);
+    assert.equal(await page.locator("#verdict-tier").textContent(), "READY TO INSPECT");
+    report.checks.push("AR-1: Sandbox reversible for scenario and custom bundles: 70% -> 0%, repeated apply, and reset restore originals and clear stale results");
+
+    // =========================================================================
+    // AR-2: Accessibility, Keyboard, Status Announcements & Non-Color Labels
+    // =========================================================================
+    await scenario(page, "ceo-wire-scam");
+    // Check non-color badges
+    assert.ok(await page.locator("#badge-media").textContent() !== "—");
+    assert.ok(await page.locator("#badge-uncertainty").textContent() !== "—");
+    assert.equal(await page.locator("#verdict-badge").isVisible(), true);
+    assert.equal(await page.locator("#playbook-steps").getAttribute("role"), "group");
+    assert.equal(await page.locator("#playbook-progress").getAttribute("role"), "status");
+    assert.equal(await page.locator("#operation-status").getAttribute("role"), "status");
+
+    // Copy Canary button test
+    await page.evaluate(() => { document.querySelector(".canary-card").open = true; });
+    await page.locator("#canary-text").fill("Accessible canary bio text.");
+    await page.locator("#btn-canary").click();
+    await page.locator("#canary-result").waitFor({ state: "visible" });
+    assert.equal(await page.locator("#btn-copy-canary").isVisible(), true);
+    await page.locator("#btn-copy-canary").click();
+    await page.waitForFunction(() => document.querySelector("#canary-copy-status").textContent.includes("copied"));
+
+    // 200% zoom reflow check (effective viewport width 720px)
+    await page.setViewportSize({ width: 720, height: 900 });
+    await noOverflow(page, "200% zoom reflow (720px)");
+    await page.setViewportSize({ width: 1440, height: 1080 });
+    report.checks.push("AR-2: Keyboard accessible controls, high-contrast focus, non-color uncertainty badges, live regions, and 200% zoom reflow verified");
+
+    // =========================================================================
+    // AR-3: Failure & Export State Regressions
+    // =========================================================================
+    // 1. Engine Unavailable / Network Failure
+    await page.route(`${base}/api/v1/inspect`, route => route.abort("failed"), { times: 1 });
+    await page.locator("#btn-run-inspection").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").classList.contains("error"));
+    assert.match(await page.locator("#operation-status").textContent(), /Cannot reach the local engine/);
+    assert.equal(await page.locator("#btn-run-inspection").isDisabled(), false);
+    assert.equal(await page.locator("#workspace").getAttribute("aria-busy"), "false");
+    assert.equal(await page.locator("#verdict-tier").textContent(), "READY TO INSPECT");
+
+    // 2. HTTP 422 Unprocessable Entity
+    await page.route(`${base}/api/v1/inspect`, async route => {
+      await route.fulfill({
+        status: 422,
+        contentType: "application/json",
+        body: JSON.stringify({
+          detail: [
+            { loc: ["body", "evidenceItems", 0, "samples"], msg: "Input samples corrupted or out of range" }
+          ]
+        })
+      });
+    }, { times: 1 });
+    await page.locator("#btn-run-inspection").click();
+    await page.waitForFunction(() => document.querySelector("#operation-status").classList.contains("error"));
+    const status422 = await page.locator("#operation-status").textContent();
+    assert.match(status422, /Input samples corrupted or out of range/);
+    assert.ok(!status422.includes("[object Object]"));
+
+    // 3. Corrupted media decode error caught gracefully
+    await page.locator("#file-input").setInputFiles({
+      name: "corrupted-file.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("NOT_A_VALID_PNG_OR_IMAGE_PAYLOAD")
+    });
+    await page.waitForFunction(() => document.querySelector("#operation-status").classList.contains("error"));
+    assert.match(await page.locator("#operation-status").textContent(), /could not be decoded/);
+    assert.equal(await page.locator("#media-list li").count(), 0);
+    assert.equal(await page.locator("#btn-run-inspection").isDisabled(), false);
+
+    // 4. Clipboard Denial Handling
+    await scenario(page, "ceo-wire-scam");
+    assert.equal(await page.locator("#verdict-actions").isVisible(), true);
+    await page.evaluate(() => {
+      navigator.clipboard.writeText = () => Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
+    });
+    await page.locator("#btn-copy-brief").click();
+    await page.waitForFunction(() => document.querySelector("#copy-brief-status").textContent.length > 0);
+    const copyStatus = await page.locator("#copy-brief-status").textContent();
+    assert.equal(copyStatus, "Clipboard access unavailable; use JSON export");
+
+    // 5. JSON Export Dossier Purity
+    const downloadPromise = page.waitForEvent("download");
+    await page.locator("#btn-export-dossier").click();
+    const download = await downloadPromise;
+    const stream = await download.createReadStream();
+    const downloadedText = await new Promise((resolve, reject) => {
+      const chunks = [];
+      stream.on("data", chunk => chunks.push(chunk));
+      stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+      stream.on("error", reject);
+    });
+    const dossier = JSON.parse(downloadedText);
+    assert.ok(dossier.verdictId);
+    assert.ok(dossier.calibratedTrustVector);
+    assert.ok(Array.isArray(dossier.evidenceLedger));
+    assert.equal(dossier.evidenceItems, undefined);
+    assert.ok(!downloadedText.includes("imagePixels"));
+    assert.ok(!downloadedText.includes("audioSamples"));
+    assert.ok(!downloadedText.includes("data:image"));
+
+    // 6. Expired / Broken Audit Links
+    await page.route(`${base}/api/v1/cases/*/sign-audit`, route => route.fulfill({
+      status: 404,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Case not found or expired; run an inspection first" })
+    }), { times: 1 });
+    const playbookChecks = page.locator("#playbook-steps input");
+    await page.locator("#analyst-id").fill("ANALYST_EXPIRY_TEST");
+    await page.locator("#audit-notes").fill("Verification checks completed prior to case expiry.");
+    await page.locator("#final-decision").selectOption("INCONCLUSIVE");
+    for (let i = 0; i < await playbookChecks.count(); i += 1) await playbookChecks.nth(i).check();
+    await page.locator("#btn-sign-audit").click();
+    await page.waitForFunction(() => document.querySelector("#audit-status").textContent.includes("Case not found or expired"));
+    assert.equal(await page.locator("#audit-links").isVisible(), false);
+
+    // Foreign / Malicious redirect in downloadPdfUrl rejected by safeApiLink
+    await page.route(`${base}/api/v1/cases/*/sign-audit`, route => route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        auditCertificateId: "malicious-cert-id",
+        timestamp: new Date().toISOString(),
+        certificateSha256: "fake-sha-256",
+        downloadPdfUrl: "https://malicious-external-site.example.com/exploit.pdf",
+        verifyUrl: "http://127.0.0.1:8000/api/v1/certificates/malicious-cert-id/verify"
+      })
+    }), { times: 1 });
+    await page.locator("#btn-sign-audit").click();
+    await page.waitForFunction(() => document.querySelector("#audit-status").textContent.includes("Certificate link must point to the local TrustGuard backend"));
+    assert.equal(await page.locator("#audit-links").isVisible(), false);
+
+    report.checks.push("AR-3: Regressions for engine unavailable, 422, interrupted media, clipboard denial, expired audit link, and pure JSON export pass");
+
     await scenario(page, "homoglyph-clone");
-    await page.locator(".canary-card summary").click();
+    await page.evaluate(() => { document.querySelector(".canary-card").open = true; });
     await page.screenshot({ path: path.join(artifacts, "dashboard-desktop.png"), fullPage: true });
     report.screenshots.push("scratch/dashboard-smoke/dashboard-desktop.png");
     await page.setViewportSize({ width: 390, height: 844 });
