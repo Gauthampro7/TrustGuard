@@ -29,7 +29,10 @@ def analyze(audio_samples, sample_rate=16000):
         return result("audio_vocoder", start, findings=[
             "Silent, constant or very short audio cannot support a vocoder artifact assessment."
         ], metrics={"evaluated": False, "durationSec": round(signal.size / sample_rate, 6)})
-    signal = signal / max(float(np.max(np.abs(signal))), 1e-12)
+    peak = float(np.max(np.abs(signal)))
+    # Peak normalization would lift a bare noise floor to full scale; record the level first.
+    near_silent = peak < 1e-3
+    signal = signal / max(peak, 1e-12)
     n_fft, hop = 512, 128
     frames = np.lib.stride_tricks.sliding_window_view(signal, n_fft)[::hop]
     spectrum = np.fft.rfft(frames * np.hanning(n_fft), axis=1)
@@ -56,13 +59,17 @@ def analyze(audio_samples, sample_rate=16000):
     score = float(min(0.8, 0.25 * phase_signal + 0.55 * silence_signal))
     duration = signal.size / sample_rate
     active_fraction = float(np.mean(rms >= max(1e-6, rms.max() * 0.02)))
-    uncertainty = max(0.45, 0.8 if duration < 0.5 else 0, 1 - active_fraction)
-    return result("audio_vocoder", start, score, uncertainty, [
+    uncertainty = max(0.45, 0.8 if duration < 0.5 or near_silent else 0, 1 - active_fraction)
+    findings = [
         "Brief digital silence and spectral transitions warrant listening to the unprocessed recording." if score >= 0.3
         else "No strong combination of phase and digital-silence anomalies was measured.",
         "Phase behavior and silence are not vocoder-specific; noise reduction, codecs and edits are plausible alternatives.",
-    ], {
+    ]
+    if near_silent:
+        findings.append("Peak level is below -60 dBFS; the clip may contain only a noise floor, so these measurements have little support.")
+    return result("audio_vocoder", start, score, uncertainty, findings, {
         "evaluated": True, "durationSec": round(duration, 6),
+        "peakDbfs": round(20 * float(np.log10(max(peak, 1e-12))), 3),
         "phaseDiscontinuityRate": round(phase_cut_rate, 6),
         "briefDigitalSilenceGaps": brief_gaps, "melBandAbruptCuts": cuts,
         "digitalSilenceFraction": round(float(digital_silence.mean()), 6),
