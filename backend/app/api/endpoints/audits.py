@@ -22,7 +22,10 @@ def sign_audit(case_id: str, request: AuditSignRequest):
         raise HTTPException(422, "Complete each independent verification step exactly once before signing")
     if not request.analystId.strip() or len(request.analystNotes.strip()) < 10:
         raise HTTPException(422, "An analyst ID and substantive verification notes are required")
-    certificate_id, entry = audit.create_certificate(verdict, request, settings.PUBLIC_BASE_URL)
+    try:
+        certificate_id, entry = audit.create_certificate(verdict, request, settings.PUBLIC_BASE_URL)
+    except Exception as exc:
+        raise HTTPException(500, "Certificate generation failed") from exc
     return AuditCertificateResponse(auditCertificateId=certificate_id, timestamp=entry["timestamp"],
         certificateSha256=entry["certificateSha256"], downloadPdfUrl=f"/api/v1/certificates/{certificate_id}.pdf", verifyUrl=entry["verifyUrl"])
 

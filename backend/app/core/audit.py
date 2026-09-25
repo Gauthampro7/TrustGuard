@@ -39,7 +39,10 @@ class ExpiringStore:
             for old in expired:
                 self._items.pop(old)
             entry = self._items.get(key)
-            return entry[1] if entry else None
+            if entry:
+                self._items.move_to_end(key)
+                return entry[1]
+            return None
 
 
 cases = ExpiringStore()

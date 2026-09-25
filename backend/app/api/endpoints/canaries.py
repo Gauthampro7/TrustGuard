@@ -1,6 +1,6 @@
 """Session-local canary registration for consented public text."""
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ...forensics import canary_tripwire
@@ -17,7 +17,10 @@ class CanaryRequest(BaseModel):
 
 @router.post("/canaries", response_model=CanaryRegistrationResponse, tags=["Canary"])
 def register_canary(request: CanaryRequest):
-    result = canary_tripwire.generate(request.text)
+    try:
+        result = canary_tripwire.generate(request.text)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
     _registered_canaries.append(result["token"])
     return {"markedText": result["text"], "token": result["token"],
             "notice": "Registered for this server session. A match indicates copied text, not a bot or unauthorized use. Platforms may strip invisible markers."}

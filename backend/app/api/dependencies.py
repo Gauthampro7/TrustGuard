@@ -18,3 +18,5 @@ def run_inspection(request, *, require_multimodal=True):
         return inspect(request, require_multimodal=require_multimodal, registered_tokens=tuple(_registered_canaries))
     except (InsufficientModalities, ValueError) as error:
         raise HTTPException(422, str(error)) from error
+    except Exception as error:
+        raise HTTPException(500, "Inspection failed due to an internal processing error") from error
