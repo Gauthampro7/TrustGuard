@@ -99,7 +99,10 @@
               decodeURIComponent(location.pathname).replace(/\/$/u, "").toLowerCase()) {
             throw new Error("Wait for LinkedIn to finish navigating to the public profile.");
           }
-        } catch (error) { throw new Error(error.message || "The profile address could not be matched."); }
+        } catch (error) {
+          if (error.message?.includes("LinkedIn")) throw error;
+          throw new Error("The profile address could not be matched.");
+        }
       }
       const name = firstVisible(main, ".pv-top-card h1, section h1, h1.top-card-layout__title");
       const header = name?.closest("section, .pv-top-card, .top-card-layout");
