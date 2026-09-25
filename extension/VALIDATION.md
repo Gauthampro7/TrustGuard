@@ -1,11 +1,12 @@
 # TrustGuard Extension Module — Validation & Verification Report
 
-**Module Owner**: Achumit (`achumit/extension`)  
+**Module Owner**: Achumit (`achumit/extension`)
 **Completed Tasks**:
 - **AC-1 (P0)**: Three-platform adapter fixture matrix (X, Instagram, LinkedIn)
 - **AC-2 (P1)**: Monitoring lifecycle, debouncing, and request-bound hardening
-**Date**: September 25, 2026  
-**Environment**: Windows, Node.js v22+, Python 3.14  
+- **AC-3 (P2)**: Popup/panel accessibility, incomplete-advisory handling, and UI usability
+**Date**: September 25, 2026
+**Environment**: Windows, Node.js v22+, Python 3.14
 
 ---
 
@@ -31,9 +32,19 @@
 * **Memory Safety & Pixel Purge**: Raw sampled avatar pixel arrays are strictly disposed of (`delete payload.avatarPixels; pixels.length = 0;`) in `finally` blocks after both successful evaluations and backend / network errors.
 * **Connection Resilience**: Graceful error handling and retry recovery when the background service worker or local API fails.
 
+### AC-3: UI Usability, Accessibility & Untrusted Text
+* **Complete vs. Incomplete Advisories**:
+  - Complete evaluations (`inspectionComplete: true`) display the continuous authenticity score (`XX / 100`) alongside the 5D Trust Vector and evidence ledger.
+  - Incomplete advisories (`inspectionComplete: false`) strictly withhold the continuous score as a dash (`—`), explicitly highlight missing modalities, and present evidence limitations. No single scalar establishes authenticity or identity.
+* **Unavailable Dimensions**: Missing or null vector dimensions cleanly display `"Unavailable"` and fallback to 0 in meters without UI breakage.
+* **Untrusted Text & XSS Mitigation**: All profile, verdict, and dialectic text is treated strictly as untrusted text using `textContent` and safe DOM construction. Proved zero script, image, or iframe element execution on hostile XSS strings.
+* **Homoglyph Code-Point Formatting**: Lookalike Cyrillic characters and Unicode combining marks (e.g. `U+0430` + `U+0301`) are rendered accurately in the ledger without corruption.
+* **Keyboard Navigation & ARIA**: In-page trigger pill button manages `aria-expanded` and `aria-controls`. Pressing `Escape` closes the panel and returns keyboard focus to the trigger pill button.
+* **Error & Retry Flow**: Offline engine states and 422 errors render diagnostic feedback, clear old results, and leave the inspect button enabled for immediate retry.
+
 ---
 
-## 2. Test Suite Matrix (40 Passing Tests)
+## 2. Test Suite Matrix (47 Passing Tests)
 
 The entire suite runs completely offline with zero npm dependencies using Node.js built-in test runner (`node --test extension/tests/*.test.cjs`).
 
@@ -75,6 +86,17 @@ The entire suite runs completely offline with zero npm dependencies using Node.j
 | **Memory** | Pixel disposal on error | `avatarPixels` purged in `finally` block on network / engine error | **PASS** |
 | **Resilience** | Connection recovery | Extension connection failure handled cleanly; retry succeeds | **PASS** |
 
+### UI Usability, Accessibility & Security Tests (`ui.test.cjs`)
+| Area | Test Case | Target Behavior | Result |
+| :--- | :--- | :--- | :--- |
+| **Advisories** | Complete advisory | Displays score, evaluated modalities, 5D vector, dual ledger | **PASS** |
+| **Advisories** | Incomplete advisory | Withholds continuous score as `—`; presents evidence limitations | **PASS** |
+| **Dimensions** | Unavailable dimensions | Null dimensions render `"Unavailable"` without breaking meters | **PASS** |
+| **Security** | Untrusted text & XSS | Malicious markup (`<script>`, `<img>`, `<iframe>`) rendered inert | **PASS** |
+| **Homoglyphs** | Unicode code points | Cyrillic lookalikes and combining marks accurately formatted | **PASS** |
+| **A11y** | Keyboard & ARIA | `aria-expanded` / `aria-controls` tracked; `Escape` closes and restores focus | **PASS** |
+| **Resilience** | Popup error / retry | Offline engine state surfaces error and preserves retry capability | **PASS** |
+
 ### Baseline Extension Tests (`content.test.cjs` & `background.test.cjs`)
 | Module | Test Case | Target Behavior | Result |
 | :--- | :--- | :--- | :--- |
@@ -109,14 +131,14 @@ git diff --check
 
 ### Test Runner Summary
 ```
-ℹ tests 40
+ℹ tests 47
 ℹ suites 0
-ℹ pass 40
+ℹ pass 47
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms ~200ms
+ℹ duration_ms ~203ms
 extension: all selected checks passed.
 Ownership OK: Achumit.
 ```
