@@ -1,0 +1,6 @@
+# Optional pretrained-model extractors (ai_text_classifier, ai_image_classifier).
+# Install on top of backend/requirements.txt; the baseline runs without these.
+torch>=2.5
+transformers>=4.46
+huggingface_hub>=0.26
+pillow>=10.4

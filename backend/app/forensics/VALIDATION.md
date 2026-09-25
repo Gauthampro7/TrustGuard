@@ -193,6 +193,38 @@ Changes to measurement practice in AK-3: the previous performance test timed `cr
 
 Limits: one host (Apple M4, arm64). Python 3.13.7 was used because 3.11 (the team constraint) is not installed here; Gautham's integration run should record the Windows / 3.11 numbers. Timings exclude HTTP parsing, Pydantic validation and core synthesis.
 
+## ML-1 pretrained extractors
+
+Two optional extractors add open-source classifiers: `ai_text_classifier` (AI-generated English prose) and `ai_image_classifier` (AI-generated images). Install `requirements-ml.txt`, then run `python -m backend.app.forensics.model_store --download`, which fetches pinned revisions. Extractors load weights with `local_files_only`, never touch the network, and abstain without the dependencies or with `TRUSTGUARD_ML=0`. Activation in the core is proposed in `contracts/proposals/akarsh/ML-1.md`.
+
+Unlike the synthetic controls above, these were evaluated on **real labelled media**. It is a small set, so treat the numbers as indicative, not benchmark accuracy.
+
+**Image set.** Real photos (15): 12 from `mishig/sample_images` (airport, fruit, cats, construction site, dog and cat, football, palace, savanna, teapot, tiger), bee and baklava from `huggingface/documentation-images`, and the macOS default aerial photo. AI images (18): the six SDXL-base tiles of `stabilityai/stable-diffusion-xl-base-1.0/01.png`, the ten SDXL-Turbo tiles of `stabilityai/sdxl-turbo/output_tile.jpg`, a FLUX IP-adapter output and the Stable Diffusion "astronaut". Each was reduced to ≤256 px.
+
+| Model | Colour 256 px | Grayscale 128 px (current API path) | Median ms |
+| --- | --- | --- | ---: |
+| **haywoodsloan/ai-image-detector-deploy** (Swin-v2, Apache-2.0), chosen | 18/18 AI, **2/15** real flagged, 94% | 9/18 AI, 0/15 real, 73% | 161 |
+| Organika/sdxl-detector (Swin, CC-BY-NC) | 18/18 AI, 7/15 real, 79% | 15/18 AI, 9/15 real, 64% | 58 |
+| Ateeqq/ai-vs-human-image-detector (SigLIP) | 17/18 AI, 7/15 real, 76% | 7/18 AI, 2/15 real, 61% | 47 |
+| dima806/ai_vs_real_image_detection (ViT) | 17/18 AI, 14/15 real, 55% | 17/18 AI, 15/15 real, 52% | 41 |
+
+The chosen model's colour false positives were a close-up cat and a studio teapot, both scored above 0.99. Its real-photo scores otherwise stayed at or below 0.23, and every AI image scored at least 0.99. Decisive outputs (≥0.9 or ≤0.1) therefore get uncertainty 0.4 and mid-range outputs 0.6, plus 0.25 without colour and 0.1 below 96 px. Preprocessing matches the model's `ViTImageProcessor` exactly (identical probabilities on spot checks) but is applied directly, so `torchvision` is not needed.
+
+**Text set.** Human (26 everyday texts written before LLMs were available): 10 Enron emails (`Yale-LILY/aeslc`), 8 Amazon reviews (`fancyzhx/amazon_polarity`), 8 Yelp reviews (`Yelp/yelp_review_full`). AI (10): emails, reviews, a news paragraph, a WhatsApp-style message, a LinkedIn post and three scams, all written by an LLM (Claude) for this test. Separate genre check: 12 human technical and literary passages (BSD man pages, Python stdlib docstrings, Project Gutenberg) versus 8 AI-written technical documents (this repository's README and VALIDATION paragraphs).
+
+| Model | Everyday, threshold 0.5 | Everyday, decisive ≥0.95 | Technical docs |
+| --- | --- | --- | --- |
+| **fakespot-ai/roberta-base-ai-text-detection-v1** (Apache-2.0), chosen | 9/10 AI, 4/26 human (Yelp) | 8/10 AI, **1/26** human (0/26 when cut to 40–80 words) | 4/8 AI, 8/12 human: out of scope |
+| Hello-SimpleAI/chatgpt-detector-roberta | 2/10 AI, 0/26 human | – | 1/8 AI, 0/12 human |
+
+By message length (first N words, decisive ≥0.95): 25 words caught 5/10 AI; 40, 60 and 80 words caught 8/10, each with 0/26 human flagged. The rule is therefore: under 25 words abstain; 25–39 words uncertainty 0.7; from 40 words decisive outputs 0.4 and everything else 0.7. Non-English text abstains. The classifier is **not usable on technical documentation**: human man pages and API docs score as AI, and AI-written docs score as human. Findings say AI-assisted writing is not deception by itself, and the proposed core wiring caps the text signal at 0.6 (SUSPICIOUS, never HIGH).
+
+**Latency** (Apple M4, 30 warmed calls, list inputs as the API sends them, five fresh runs): text 26 ms at 90 words and p95 ≤101 ms at 512 tokens, within 150 ms. Image median about 161 ms and p95 ≤184 ms, **above the 150 ms heuristic target**. Input 224 px (155 ms, one more false alarm), 192 px (135 ms, five false alarms), int8 dynamic quantization via qnnpack (311 ms), bfloat16 (1,354 ms) and float16 (1,248 ms) were all worse, as were 4–8 threads and channels-last (156–167 ms). The image model is held to a separate 250 ms p95 budget in `test_pretrained_models.py`, and the proposal records it. First use loads both models in about 2.5 s and about 400 MB resident, so warm them at startup.
+
+**End to end** (demo core patch in a throwaway worktree, grayscale images through the real API): SDXL image plus AI-written text went from Inconclusive to Suspicious, while real photos with human emails or reviews stayed unflagged. One human Yelp review became Suspicious (the text false-alarm rate). A short scam SMS stays Inconclusive because of the separate `stylometry_drift` short-text uncertainty. Full table in the proposal.
+
+Limits: small sets; LLM-written test texts come from one model family; image fakes come from the SDXL/SD/FLUX family; neither classifier covers audio, video or deepfaked faces; scores are uncalibrated; licences and pinned revisions are in `model_store.MODELS`.
+
 ## Out of scope
 
 No existing thresholds were tuned in AK-1, AK-2 or AK-3. The bench and benchmark only call the public functions.
