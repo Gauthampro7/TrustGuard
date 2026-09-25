@@ -98,6 +98,63 @@ def evaluate_profile(request: ProfileEvaluationRequest):
             finding=f"Screened {total_images} profile visual assets (avatar + post samples) using 2D-FFT radial spectra: natural optical rolloff without synthetic lattice or checkerboard generator artifacts."
         ))
 
+    if request.referenceHandle:
+        ref_clean = request.referenceHandle.strip().removeprefix("@").casefold()
+        obs_clean = request.handle.strip().removeprefix("@").casefold()
+        if ref_clean == obs_clean:
+            ledger.append(LedgerEvidenceItem(
+                signalId="profile:reference_match",
+                layer="identity_consistency",
+                modality="text",
+                polarity="green_flag",
+                confidence=0.90,
+                finding=f"Observed handle (@{obs_clean}) matches the supplied reference handle (@{ref_clean})."
+            ))
+        else:
+            ref_sub = re.sub(r"[._-]+", "", ref_clean)
+            obs_sub = re.sub(r"[._-]+", "", obs_clean)
+            def _edit_dist(s1, s2):
+                if len(s1) < len(s2):
+                    return _edit_dist(s2, s1)
+                if len(s2) == 0:
+                    return len(s1)
+                prev = range(len(s2) + 1)
+                for i, c1 in enumerate(s1):
+                    curr = [i + 1]
+                    for j, c2 in enumerate(s2):
+                        curr.append(min(prev[j + 1] + 1, curr[j] + 1, prev[j] + (c1 != c2)))
+                    prev = curr
+                return prev[-1]
+            dist = _edit_dist(obs_clean, ref_clean)
+            sub_dist = _edit_dist(obs_sub, ref_sub)
+            if sub_dist == 0:
+                ledger.append(LedgerEvidenceItem(
+                    signalId="profile:handle_separator_variation",
+                    layer="identity_consistency",
+                    modality="text",
+                    polarity="red_flag",
+                    confidence=0.88,
+                    finding=f"Potential lookalike / handle padding: observed handle (@{obs_clean}) matches reference (@{ref_clean}) but introduces repeated separator characters ({obs_clean.count('_')} vs {ref_clean.count('_')} underscores)."
+                ))
+            elif dist <= 3 or sub_dist <= 2:
+                ledger.append(LedgerEvidenceItem(
+                    signalId="profile:handle_typosquat_lookalike",
+                    layer="identity_consistency",
+                    modality="text",
+                    polarity="red_flag",
+                    confidence=0.85,
+                    finding=f"Potential typosquatting lookalike: observed handle (@{obs_clean}) is a close textual mutation of reference handle (@{ref_clean}) with edit distance {dist}."
+                ))
+            else:
+                ledger.append(LedgerEvidenceItem(
+                    signalId="profile:handle_reference_mismatch",
+                    layer="identity_consistency",
+                    modality="text",
+                    polarity="red_flag",
+                    confidence=0.90,
+                    finding=f"Identity handle mismatch: observed profile handle (@{obs_clean}) does not match supplied reference handle (@{ref_clean})."
+                ))
+
     red_count = sum(1 for entry in ledger if entry.polarity.value == "red_flag")
     red = red_count > 0
     if red:
