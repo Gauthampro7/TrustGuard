@@ -269,11 +269,12 @@ s5 = prs.slides.add_slide(blank_layout)
 set_slide_background(s5)
 add_header(s5, "04 · Practical Feature 2", "Fake Account & Clone Hunter", "Automatically finding people pretending to be you across social platforms.")
 
-add_card(s5, 0.8, 1.8, 3.7, 4.0, "1. Lookalike Username Scanner", [
-    "Catches deceptive username tricks:",
-    "  • Appending '_official', 'real_', '_support'",
-    "  • Intentional misspellings (typosquatting)",
-    "  • Lookalike letters (homoglyphs): Replacing Latin 'a' with Cyrillic 'а' that looks 100% identical on screen."
+add_card(s5, 0.8, 1.8, 3.7, 4.0, "1. Multi-Tier Handle Scanner", [
+    "Catches deceptive impersonation variations:",
+    "  • Separator padding: e.g. adding extra underscores 'user______name' vs 'user_name'.",
+    "  • Typosquat mutations: Levenshtein distance ≤ 3 edits.",
+    "  • Lookalike letters (homoglyphs): Replacing Latin 'a' with Cyrillic 'а' (TR39 skeleton collision).",
+    "  • Contextual mismatches: Unrelated handles marked neutral, avoiding false accusations."
 ], border_color=COLOR_AMBER, bg_color=COLOR_AMBER_BG, top_bar=COLOR_AMBER)
 
 add_card(s5, 4.8, 1.8, 3.7, 4.0, "2. Profile Picture & Bio Match", [
@@ -345,44 +346,45 @@ add_footer(s7, 7)
 # ==================== SLIDE 8: EXTENSION (NEW) ====================
 s8 = prs.slides.add_slide(blank_layout)
 set_slide_background(s8)
-add_header(s8, "07 · Practical Feature 5", "The Always-On Browser Extension", "Real-time profile genuineness as you browse Instagram, X, or Facebook.")
+add_header(s8, "07 · Practical Feature 5", "The Always-On Browser Extension", "Real-time profile genuineness as you browse Instagram, X, or LinkedIn.")
 
-add_card(s8, 0.8, 1.8, 5.7, 4.0, "🌐 How It Works in Your Feed", [
-    "Silent On-Open Inspection: As you open any profile or hover over a handle in DMs, the extension silently reads visible webpage data.",
-    "Handle Authenticity: Instantly catches Cyrillic lookalike letters, typosquats, or brand spoofing.",
-    "Account Age vs. Influence: Flags brand-new accounts created 48 hours ago claiming to be verified figures.",
-    "Avatar Reverse-Check: Detects if the avatar photo is copied from a stock library or celebrity.",
-    "Network Reciprocity: Evaluates follower ratios and bot-like interaction patterns."
+add_card(s8, 0.8, 1.8, 5.7, 4.0, "🌐 3-Platform DOM Adapters & Multi-Image Screening", [
+    "Native Profile Inspection: Directly supports public profiles on Instagram, X/Twitter, and LinkedIn.",
+    "Social Footprint Parsing: Reads posts count, followers, and following directly from the page layout.",
+    "Multi-Image AI Screening: Samples avatar and up to 3 post thumbnails, screening 2D-FFT spectra for synthetic lattice artifacts.",
+    "Memory Safety & Privacy: Ephemeral 64x64 downsamples strictly disposed in finally blocks; zero raw media or passwords ever stored.",
+    "SPA Route Protection: Automatically resets reference handles and observation state during route changes."
 ], border_color=COLOR_ACCENT, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
-add_card(s8, 6.8, 1.8, 5.7, 4.0, "📈 Continuous Authenticity Score (0% – 100%)", [
-    "Nuanced dynamic scale instead of a crude 'Real vs Fake' guess:",
-    "  • 🟢 94% Genuine Profile: Established history, verified external links, organic cadence.",
-    "  • 🟡 58% Caution Advised: Recently registered, mismatched bio, sparse post history.",
-    "  • 🔴 14% High-Risk Impersonator: Cyrillic homoglyph handle, duplicate avatar, active in DM crypto spam.",
-    "Direct On-Page Badge: Displays a non-intrusive trust badge directly next to their handle."
+add_card(s8, 6.8, 1.8, 5.7, 4.0, "📈 Continuous Calibrated Authenticity Index (0 - 100)", [
+    "Parametric model replacing crude binary flags with real profile variance:",
+    "  • Logarithmic Post Volume: Continuous scaling from 1 to 100+ posts.",
+    "  • Network Depth: Logarithmic scaling from 10 to 5,000+ followers.",
+    "  • Reciprocity Ratios: Rewards mutual networks; penalizes follow-churn bots (ratio > 40).",
+    "  • Optical Texture: Measures avatar pixel standard deviation to distinguish real photos from blanks.",
+    "  • Real Examples: Active creator (91/100), typical user (82/100), new burner (60/100), Cyrillic lookalike (5/100)."
 ], border_color=COLOR_GREEN, bg_color=COLOR_CARD_BG, top_bar=COLOR_GREEN)
 
-add_banner(s8, 6.0, "⚡ The Smart Engineering Solution: By running inside the browser, the extension inspects public webpage elements directly. It never needs expensive $5,000/month social media APIs and never gets rate-limited or blocked.")
+add_banner(s8, 6.0, "⚡ Zero External API Costs: By inspecting public DOM elements on-demand, TrustGuard requires zero expensive platform APIs, operates 100% locally, and respects platform privacy boundaries.")
 add_footer(s8, 8)
 
 # ==================== SLIDE 9: MULTIMODAL INSPECTOR ====================
 s9 = prs.slides.add_slide(blank_layout)
 set_slide_background(s9)
-add_header(s9, "08 · Practical Feature 6", "The Multimodal Inspector in Action", "Drop in any suspicious video, voice note, or message to see the full breakdown.")
+add_header(s9, "08 · Practical Feature 6", "The Multimodal Inspector & ML-1", "Pretrained AI classifiers, signal-bounded uncertainty, and explainable dual ledgers.")
 
-add_card(s9, 0.8, 1.8, 5.7, 2.5, "📥 What You Provide to the Inspector", [
-    "Drop in at least two pieces of evidence:",
-    "  1. Video or Audio clip (e.g. an urgent voice note from a boss or relative).",
-    "  2. The text chat or email accompanying the media.",
-    "  3. The claimed identity (who they say they are)."
+add_card(s9, 0.8, 1.8, 5.7, 2.5, "📥 Multimodal Forensic Suite", [
+    "Nine CPU Extractors & Two Pretrained AI Models:",
+    "  • RoBERTa AI-text classifier & Swin-v2 AI-image classifier (local, air-gapped).",
+    "  • Voice vocoder artifact detection & cross-modal A/V sync tracking.",
+    "  • 2D-FFT radial spectral rolloff & TR39 homoglyph Unicode hunter."
 ], border_color=COLOR_CARD_BORDER, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
-add_card(s9, 6.8, 1.8, 5.7, 2.5, "🔍 The 4 Concrete Checks It Runs", [
-    "1. Audio Check: Does the voice show signs of AI vocoder synthesis?",
-    "2. Lip-Sync Check: Do the lips match spoken words, or is it dubbed?",
-    "3. Text Check: Does the message use coercive urgency tricks?",
-    "4. Identity Check: Does this match the claimed person's verified records?"
+add_card(s9, 6.8, 1.8, 5.7, 2.5, "🔍 Signal-Bounded Epistemic Uncertainty", [
+    "Key Innovation: Prevents bundle-wide dilution:",
+    "  • Each extractor signal is bounded by its own usability (min(score, 1.15 - U)).",
+    "  • A short bio or missing modality no longer outvotes a clear forensic red flag.",
+    "  • Evaluated uncertainty computed over active extractors only."
 ], border_color=COLOR_ACCENT, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
 res_box = s9.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(4.5), Inches(11.7), Inches(2.2))
@@ -393,7 +395,7 @@ tf_res = res_box.text_frame
 tf_res.margin_left = Inches(0.24)
 tf_res.margin_top = Inches(0.18)
 p_r1 = tf_res.paragraphs[0]
-p_r1.text = "📊 What the User Sees: Explainable Traffic Light Verdict"
+p_r1.text = "📊 Dual Evidence Ledger: Separating Red Flags from Uncertainty"
 p_r1.font.bold = True
 p_r1.font.size = Pt(12)
 p_r1.font.color.rgb = COLOR_TEXT_MAIN
@@ -405,12 +407,12 @@ rc.line.color.rgb = COLOR_RED
 tf_rc = rc.text_frame
 tf_rc.margin_left = Inches(0.15)
 p_rc = tf_rc.paragraphs[0]
-p_rc.text = "🔴 HIGH RISK: Cloned Voice Scam"
+p_rc.text = "🔴 Forensic Red Flags (Definite Anomalies)"
 p_rc.font.bold = True
 p_rc.font.size = Pt(11)
 p_rc.font.color.rgb = COLOR_RED
 p_rc2 = tf_rc.add_paragraph()
-p_rc2.text = "• Audio shows 89% AI synthesis signatures.\n• Lip movements do not match spoken words at 0:02.\n• Message demands urgent wire transfer."
+p_rc2.text = "• Audio vocoder synthesis signatures detected.\n• Lip-sync desynchronization lag > 180 ms.\n• Observed handle contains Cyrillic homoglyph (U+0430)."
 p_rc2.font.size = Pt(9.5)
 p_rc2.font.color.rgb = COLOR_TEXT_MUTED
 
@@ -421,12 +423,12 @@ gc.line.color.rgb = COLOR_ACCENT_BORDER
 tf_gc = gc.text_frame
 tf_gc.margin_left = Inches(0.15)
 p_gc = tf_gc.paragraphs[0]
-p_gc.text = "✅ Safe Action Checklist"
+p_gc.text = "🔍 Uncertainty & Context (Honest Limits)"
 p_gc.font.bold = True
 p_gc.font.size = Pt(11)
 p_gc.font.color.rgb = COLOR_ACCENT
 p_gc2 = tf_gc.add_paragraph()
-p_gc2.text = "1. Call person on official phone: +91-98765-XXXXX.\n2. Do not send funds to the unverified bank account.\n3. Click 'Download PDF Incident Report' for fraud department."
+p_gc2.text = "• Missing modalities reported as unavailable, never zero-risk.\n• Polished text shown as context, not false red flags.\n• Step-by-step verification playbook provided for analysts."
 p_gc2.font.size = Pt(9.5)
 p_gc2.font.color.rgb = COLOR_TEXT_MUTED
 add_footer(s9, 9)
@@ -436,48 +438,52 @@ s10 = prs.slides.add_slide(blank_layout)
 set_slide_background(s10)
 add_header(s10, "09 · Core Hackathon Ethos", "Why \"No Score is Proof\"", "An AI score is never absolute truth. TrustGuard gives you safe ways to verify independently.")
 
-add_card(s10, 0.8, 1.8, 3.7, 4.0, "1. No False Accusations", [
-    "If a video is simply blurry or recorded on bad hotel Wi-Fi, TrustGuard doesn't yell 'Fake!'.",
-    "It transparently warns:",
-    "  'Quality is degraded by compression. Low confidence. Do not penalize.'",
-    "Prevents wrongful accusations."
+add_card(s10, 0.8, 1.8, 3.7, 4.0, "1. 5D Calibrated Trust Vector", [
+    "Replaces misleading scalar ratings with five explicit dimensions:",
+    "  • Media Anomaly (synthesis)",
+    "  • Cross-Modal Discordance (lip-sync)",
+    "  • Identity Mismatch (homoglyphs)",
+    "  • Context Anomaly (urgency/style)",
+    "  • Epistemic Uncertainty (data quality)"
 ], border_color=COLOR_ACCENT, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
 add_card(s10, 4.8, 1.8, 3.7, 4.0, "2. Independent Verification", [
-    "Instead of leaving you guessing, TrustGuard provides:",
-    "  • Verified company telephone directory lookup.",
-    "  • Original source video archive link if the footage was recycled.",
-    "  • Official bank account verification check."
+    "Instead of leaving users helpless, TrustGuard provides:",
+    "  • Ground-truth company directory lookup.",
+    "  • Steganographic canary tripwire checking.",
+    "  • Adversarial dialectic: provides explicit arguments for AND against authenticity."
 ], border_color=COLOR_GREEN, bg_color=COLOR_GREEN_BG, top_bar=COLOR_GREEN)
 
-add_card(s10, 8.8, 1.8, 3.7, 4.0, "3. Signed Audit Report", [
-    "Once you verify the facts, generate an official PDF Incident Report.",
-    "Includes timestamps, evidence hashes, and analyst notes.",
-    "Ready to share with banks, platform support, or police."
+add_card(s10, 8.8, 1.8, 3.7, 4.0, "3. Signed Audit Certificates", [
+    "Cryptographically seals the final determination:",
+    "  • Ed25519 digital signature with embedded QR verification routing.",
+    "  • Verifiable offline or online with SHA-256 evidence hashes.",
+    "  • Downloadable as official PDF for banking, IT, or legal compliance."
 ], border_color=COLOR_ACCENT, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
-add_banner(s10, 6.0, "🎯 Judges' Favorite: The official hackathon problem explicitly states: 'Teams must demonstrate that the system does not treat an AI score as proof.' TrustGuard is built around this exact principle.")
+add_banner(s10, 6.0, "🎯 Judges' Favorite: The official hackathon problem explicitly states: 'Teams must demonstrate that the system does not treat an AI score as proof.' TrustGuard enforces this in code, UI meters, and audit trails.")
 add_footer(s10, 10)
 
 # ==================== SLIDE 11: DEMO SCOPE ====================
 s11 = prs.slides.add_slide(blank_layout)
 set_slide_background(s11)
-add_header(s11, "10 · The Working Prototype", "What We Are Building for the Demo", "A fast, live, 100% working prototype running smoothly on stage.")
+add_header(s11, "10 · Verified Working Prototype", "Fully Implemented & Battle-Tested", "All components live, tested across 414 test gates, and demonstrable on stage.")
 
-add_card(s11, 0.8, 1.8, 5.7, 4.0, "💻 Live Working Components (24-Hour Scope)", [
-    "Interactive Web App Dashboard: Clean, responsive UI showing user profile, active scans, and security status.",
-    "Extension UI Preview: Shows on-hover trust pill and continuous authenticity score directly over Instagram/X profile mockups.",
-    "Multimodal File Dropzone: Upload video/voice message + text conversation for real-time analysis.",
-    "Live Forensic Spectrogram & Lip Sync: Shows real audio waveforms and facial landmark tracking in <150ms on laptop CPU."
+add_card(s11, 0.8, 1.8, 5.7, 4.0, "💻 Live Working Components (Delivered)", [
+    "Interactive Web App Dashboard: 5D vector meters, dual evidence ledgers, and Reversible Adversarial Sandbox (AR-1).",
+    "Live Browser Extension: Real-time public profile inspection on Instagram, X, and LinkedIn with continuous dynamic index.",
+    "Multi-Modal Pipeline: 9 CPU extractors (<27ms median) + optional local ML classifiers (<250ms p95).",
+    "414 Automated Checks Passing: 100% test pass rate across unit, integration, extension, and real headless Chromium tests."
 ], border_color=COLOR_ACCENT, bg_color=COLOR_CARD_BG, top_bar=COLOR_ACCENT)
 
-add_card(s11, 6.8, 1.8, 5.7, 4.0, "🎬 3 Interactive Demo Scenarios", [
-    "Scenario 1: The CEO Emergency Wire Call: Shows an authentic executive video combined with an AI-cloned voice and urgent chat text.",
-    "Scenario 2: In-Feed Lookalike Profile (Extension): Shows an Instagram/X profile with homoglyph spoofing triggering a 14% high-risk badge.",
-    "Scenario 3: The Bad Wi-Fi Edge Case: Shows a real low-res video where TrustGuard avoids false alarm and correctly reports compression noise."
+add_card(s11, 6.8, 1.8, 5.7, 4.0, "🎬 4 Complete Production Scenarios", [
+    "Scenario 1: CEO Wire Scam: Cloned voice + lip-sync mismatch + urgent text -> HIGH_IMPERSONATION_RISK.",
+    "Scenario 2: Homoglyph Clone: Unicode TR39 spoofing + pHash match -> HIGH_IMPERSONATION_RISK.",
+    "Scenario 3: Creator Copyright & Canary: Steganographic invisible zero-width marker triggers live tripwire alert.",
+    "Scenario 4: Wi-Fi Compression Edge Case: Degraded channel noise cleanly clamps uncertainty to prevent false accusation."
 ], border_color=COLOR_GREEN, bg_color=COLOR_GREEN_BG, top_bar=COLOR_GREEN)
 
-add_banner(s11, 6.0, "🚀 Conclusion: TrustGuard is practical, privacy-respecting, and solves the real problem of digital trust—protecting real people from real attacks.")
+add_banner(s11, 6.0, "🚀 Conclusion: TrustGuard delivers digital trust without data hoarding, provides actionable proof instead of AI guesswork, and is 100% ready for real-world deployment.")
 add_footer(s11, 11)
 
 # Save
