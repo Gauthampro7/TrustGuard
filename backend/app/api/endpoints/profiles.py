@@ -1,8 +1,11 @@
 """Transient browser-extension profile evaluation."""
 
+import math
 import re
 from datetime import datetime, timezone
 from uuid import uuid4
+
+import numpy as np
 
 from fastapi import APIRouter
 
@@ -160,19 +163,58 @@ def evaluate_profile(request: ProfileEvaluationRequest):
     if red:
         consistency = max(0.05, 0.40 - 0.15 * red_count - risk)
     else:
-        # Base diagnostic consistency for un-anomalous profile
-        consistency = 0.72
-        if any(e.layer == "identity_consistency" and e.polarity.value == "green_flag" for e in ledger):
-            consistency += 0.05
-        if any(e.layer == "media_synthetic" and e.polarity.value == "green_flag" for e in ledger):
-            consistency += 0.05
-        if (posts_count is not None and posts_count >= 5) or (followers_count is not None and followers_count >= 50):
-            consistency += 0.05
+        # Continuous heuristic authenticity index for un-anomalous profile
+        consistency = 0.64
+
+        # 1. Continuous account activity footprint (posts scaling: 0 to 100+ posts)
+        if posts_count is not None and posts_count > 0:
+            p_factor = min(1.0, math.log10(posts_count + 1) / math.log10(100))
+            consistency += 0.07 * p_factor
+
+        # 2. Continuous social graph depth (followers scaling: 0 to 5,000+ followers)
+        if followers_count is not None and followers_count > 0:
+            f_factor = min(1.0, math.log10(followers_count + 1) / math.log10(5000))
+            consistency += 0.07 * f_factor
+
+        # 3. Social graph reciprocity & follow-churn detection
+        if followers_count is not None and following_count is not None and followers_count > 0:
+            ratio = following_count / followers_count
+            if ratio > 40:
+                consistency -= 0.08
+            elif 0.1 <= ratio <= 4.0:
+                consistency += 0.03
+            elif ratio < 0.1:
+                consistency += 0.025
+
+        # 4. Profile bio linguistic richness & grounding
+        bio = (request.bioText or "").strip()
+        if bio:
+            words = len(bio.split())
+            consistency += min(0.03, words * 0.002)
+            if "@" in bio or "http" in bio or "/" in bio:
+                consistency += 0.01
+
+        # 5. Visual asset texture and spatial variance
+        if request.avatarPixels:
+            try:
+                arr = np.array(request.avatarPixels, dtype=float)
+                pixel_std = float(np.std(arr))
+                if pixel_std >= 15:
+                    consistency += min(0.035, (pixel_std - 15) / 1000 * 0.7)
+            except Exception:
+                pass
+
+        # 6. Multi-image visual screening (avatar + sampled post images)
         if total_images > 1 and not any(e.layer == "media_synthetic" and e.polarity.value == "red_flag" for e in ledger):
-            consistency += 0.03
-        if not any(e.layer == "stylometry_behavior" and e.polarity.value == "red_flag" for e in ledger):
-            consistency += 0.02
-        consistency = min(0.92, consistency)
+            consistency += min(0.04, (total_images - 1) * 0.015)
+
+        # 7. Identity consistency & reference matching
+        if any(e.signalId == "profile:reference_match" for e in ledger):
+            consistency += 0.04
+        elif any(e.layer == "identity_consistency" and e.polarity.value == "green_flag" for e in ledger):
+            consistency += 0.015
+
+        consistency = min(0.94, max(0.40, consistency))
 
     label = "INCOMPLETE_MULTIMODAL_INSPECTION" if not complete else ("REVIEW_LOOKALIKE_SIGNALS" if red else "UNVERIFIED_PROFILE")
     return ProfileEvaluationResponse(

@@ -263,7 +263,8 @@
         if (sample && sample.pixels) postPixelsList.push(sample.pixels);
       }
     }
-    if (postPixelsList.length) observation.payload.postImagesPixels = postPixelsList;
+    const screenedCount = postPixelsList.length;
+    if (screenedCount) observation.payload.postImagesPixels = postPixelsList;
 
     pending = (async () => {
       let response;
@@ -286,8 +287,8 @@
         return { success: false, error: "The profile changed during inspection. Inspect the current profile again.", enabled };
       }
       const notes = avatar.note ? [avatar.note] : [];
-      if (postPixelsList.length) {
-        notes.push(`${postPixelsList.length} post image(s) screened for generative artifacts.`);
+      if (screenedCount) {
+        notes.push(`${screenedCount} post image(s) screened for generative artifacts.`);
       }
       cached = { ...(response || { success: false, error: "The local engine did not respond." }),
         enabled, profile: { platform: observation.payload.platform, handle: observation.payload.handle },
