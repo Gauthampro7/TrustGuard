@@ -136,3 +136,28 @@ def test_image_model_meets_its_separate_250ms_model_budget():
     p95, peak = _p95_ms(lambda: ai_image_classifier.analyze(frame))
     print(f"ai_image_classifier: p95={p95:.1f}ms max={peak:.1f}ms")
     assert p95 < 250
+
+
+@image_model
+@text_model
+def test_concurrent_first_requests_load_each_model_once_without_errors():
+    # Reproduces a live failure: the Chrome extension and the dashboard hit the API at start-up,
+    # two threads raced transformers' lazy imports and one request returned HTTP 500.
+    from concurrent.futures import ThreadPoolExecutor
+    model_store.load.cache_clear()
+    frame = np.random.default_rng(4).random((96, 96, 3)) * 255
+    calls = [lambda: ai_image_classifier.analyze(frame), lambda: ai_text_classifier.analyze(AI_EMAIL)] * 4
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(lambda call: call(), calls))
+    assert all(r.metrics["evaluated"] for r in results)
+    assert model_store.load("ai_text") is model_store.load("ai_text")
+
+
+def test_unexpected_load_errors_abstain_instead_of_raising(monkeypatch):
+    model_store.load.cache_clear()
+    monkeypatch.setattr(model_store, "dependencies_installed", lambda: True)
+    monkeypatch.setattr(model_store, "_load", lambda kind: (_ for _ in ()).throw(AttributeError("lazy import race")))
+    measured = ai_image_classifier.analyze(np.random.default_rng(5).random((64, 64)) * 255)
+    assert not measured.metrics["evaluated"] and measured.metrics["modelAvailable"] is False
+    assert "AttributeError" in measured.findings[0]
+    model_store.load.cache_clear()

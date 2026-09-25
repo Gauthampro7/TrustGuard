@@ -14,7 +14,7 @@ Model scores are uncalibrated classifier outputs, never proof.
 """
 
 import argparse
-from functools import lru_cache
+import threading
 from importlib.util import find_spec
 import os
 
@@ -47,32 +47,53 @@ def enabled():
     return os.environ.get("TRUSTGUARD_ML", "1") != "0"
 
 
-@lru_cache(maxsize=None)
+_LOCK = threading.Lock()
+_LOADED = {}
+
+
+def _load(kind):
+    spec = MODELS[kind]
+    options = {"revision": spec["revision"], "local_files_only": True}
+    # Explicit imports: transformers' lazy attribute loading is not safe to race across threads.
+    from transformers import AutoModelForImageClassification, AutoModelForSequenceClassification, AutoTokenizer
+    from transformers.utils import logging as transformers_logging
+
+    if kind == "ai_text":
+        pre = AutoTokenizer.from_pretrained(spec["repo"], **options)
+        model = AutoModelForSequenceClassification.from_pretrained(spec["repo"], **options)
+    else:
+        # The ViT preprocessing is applied directly (see ai_image_classifier) so torchvision is not required.
+        from huggingface_hub import hf_hub_download
+        import json
+        with open(hf_hub_download(spec["repo"], "preprocessor_config.json", **options), encoding="utf-8") as handle:
+            pre = json.load(handle)
+        model = AutoModelForImageClassification.from_pretrained(spec["repo"], **options)
+    transformers_logging.disable_progress_bar()
+    return pre, model.eval()
+
+
 def load(kind):
-    """Return (preprocessor, model) from the local cache; raise LookupError when unavailable."""
+    """Return (preprocessor, model) from the local cache; raise LookupError when unavailable.
+
+    Thread-safe: API requests run on worker threads, and the first two concurrent
+    requests must not both import and load a model.
+    """
+    if kind in _LOADED:
+        return _LOADED[kind]
     if not enabled():
         raise LookupError("Pretrained models are disabled by TRUSTGUARD_ML=0.")
     if not dependencies_installed():
         raise LookupError("PyTorch/transformers are not installed. " + INSTALL_HINT)
-    import transformers
+    with _LOCK:
+        if kind not in _LOADED:
+            try:
+                _LOADED[kind] = _load(kind)
+            except Exception as error:  # any load failure must abstain, never fail the request
+                raise LookupError(f"{MODELS[kind]['repo']} could not be loaded locally ({type(error).__name__}). " + INSTALL_HINT) from error
+    return _LOADED[kind]
 
-    spec = MODELS[kind]
-    options = {"revision": spec["revision"], "local_files_only": True}
-    try:
-        if kind == "ai_text":
-            pre = transformers.AutoTokenizer.from_pretrained(spec["repo"], **options)
-            model = transformers.AutoModelForSequenceClassification.from_pretrained(spec["repo"], **options)
-        else:
-            # The ViT preprocessing is applied directly (see ai_image_classifier) so torchvision is not required.
-            from huggingface_hub import hf_hub_download
-            import json
-            with open(hf_hub_download(spec["repo"], "preprocessor_config.json", **options), encoding="utf-8") as handle:
-                pre = json.load(handle)
-            model = transformers.AutoModelForImageClassification.from_pretrained(spec["repo"], **options)
-    except (OSError, ImportError, ValueError) as error:
-        raise LookupError(f"{spec['repo']} could not be loaded locally ({type(error).__name__}). " + INSTALL_HINT) from error
-    transformers.utils.logging.disable_progress_bar()
-    return pre, model.eval()
+
+load.cache_clear = _LOADED.clear
 
 
 def available(kind):
