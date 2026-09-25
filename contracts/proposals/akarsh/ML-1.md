@@ -1,7 +1,7 @@
 # ML-1: activate two optional pretrained extractors (AI-generated text and images)
 
 Owner: akarsh
-Status: proposed
+Status: accepted
 Current contract: v1
 Related module task: new extractors `ai_text_classifier`, `ai_image_classifier` (see `backend/app/forensics/VALIDATION.md`, "ML-1 pretrained extractors")
 
@@ -55,4 +55,12 @@ If only the extractors are wanted without the aggregation change, drop the three
 
 ## Integration record — Gautham fills on acceptance
 
-Decision, contract version, integration commit, migration notes and follow-up tasks:
+- **Decision**: Formally accepted. The two pretrained extractors (`ai_text_classifier`, `ai_image_classifier`) and the core activation patch (`ML-1-core.patch`) are accepted into main. Signal-bounded uncertainty and evaluated-only aggregation resolve the bundle-wide dilution issue while preserving strict epistemic caps, and a 250 ms p95 budget is adopted for pretrained image inference.
+- **Contract Version**: v1 (backward-compatible; 0 drift against v1 schemas and frozen extractor ABI).
+- **Integration Commit**: `0ca521b` (merge of Akarsh's forensics commit `3ee8cd5`) and `990fac5` (core activation in `backend/app/core/inspection.py`).
+- **Migration Notes**: Optional dependencies in `backend/app/forensics/requirements-ml.txt`. Weights fetched explicitly via `python -m backend.app.forensics.model_store --download` (pinned revisions, offline-only with `local_files_only=True`). Clean abstention maintained without weights or when `TRUSTGUARD_ML=0`.
+- **Validation**: 347 tests passed (5 skipped without model weights), 47 extension tests passed, full diagnostics suite (5/5) passed, and browser smoke suite (12/12) passed with 0 contract drift.
+- **Follow-up Tasks**:
+  1. Colour frames: Gautham schema update to `EvidenceSamples.imagePixels` accepting `HxWx3` RGB, and Aril dashboard update to send RGB frames (improves image classification accuracy from 73% to 94%).
+  2. Pre-warming: Wire `model_store.load()` into FastAPI startup when `TRUSTGUARD_ML=1` to absorb the ~2.5s cold start.
+  3. Model weights caching in deployment/container pipeline.

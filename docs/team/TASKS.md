@@ -19,6 +19,7 @@ This board assigns the next improvements. It does not ask four people to reimple
 | AR-3 | Completed | Aril | Error-state and JSON/clipboard/audit-link regressions | Offline/422/clipboard-denied/expired-link failures are honest; export is current verdict only |
 | AC-3 | Completed | Achumit | Popup/panel accessibility and incomplete-advisory tests | `tests/ui.test.cjs`: incomplete advisory withholding, untrusted text security, ARIA access |
 | GA-4 | Completed | Gautham | Integrate one reviewed owner PR at a time and refresh validation | Contract checks, all Python tests, extension tests, diagnostics and live browser smoke pass on combined commit |
+| ML-1 | Completed | Akarsh / Gautham | Pretrained AI text/image classifiers and signal-bounded uncertainty | Core activated; 347 tests, diagnostics (5/5), browser-smoke (12/12) passing |
 
 P0 items are the first independent assignment for each teammate. Finish the item's acceptance checks and deliver a focused PR before picking up the next item. P1/P2 work is bounded follow-up; do not expand into new infrastructure or modalities merely because a hook exists.
 

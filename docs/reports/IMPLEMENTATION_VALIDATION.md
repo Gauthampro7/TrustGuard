@@ -102,3 +102,11 @@ Certificates and cases are bounded process-local records. They expire after one 
 The measured scenario pipeline times in this browser pass were 15.513 ms (executive request), 39.315 ms (lookalike clone), 2.018 ms (Wi-Fi edge case), and 3.095 ms (creator copyright / canary tripwire). These are the server's extraction/synthesis timings, excluding HTTP overhead and browser decoding. The corresponding uncertainty indices were 0.4562, 0.4688, 0.8000, and 0.4500.
 
 Generated artifacts: [browser report](../../scratch/dashboard-smoke/report.json), [desktop screenshot](../../scratch/dashboard-smoke/dashboard-desktop.png), [mobile screenshot](../../scratch/dashboard-smoke/dashboard-mobile.png). The scratch directory is ignored and these artifacts can be regenerated with the browser smoke script. Reproduction commands are documented in the root README.
+
+## ML-1 pretrained model integration and signal-bounded uncertainty
+
+Gautham integrated Akarsh's ML-1 branch (`origin/akarsh/ml-detectors`) and activated the proposed core patch (`contracts/proposals/akarsh/ML-1-core.patch`):
+- **Pretrained Extractors**: Added `ai_text_classifier` (`fakespot-ai/roberta-base-ai-text-detection-v1`) and `ai_image_classifier` (`haywoodsloan/ai-image-detector-deploy`) with zero network dependency (`local_files_only`), pinned revisions, and clean graceful abstention when weights are uninstalled.
+- **Signal-Bounded Epistemic Uncertainty**: Each extractor signal is now bounded by its own usability (`min(score, 1.15 - U_signal)` when U >= 0.50). An unrelated short message or missing modality no longer outvotes or erases a reliable forensic red flag across the entire bundle.
+- **Evaluated Uncertainty Aggregation**: Overall epistemic uncertainty aggregates over evaluated extractors only; clean abstentions are not penalized as maximum uncertainty.
+- **Validation**: 347 tests passing (5 skipped without model weights), diagnostics suite passing (5/5), browser smoke test passing (12/12), 47 extension tests passing, and 0 contract drift against v1.
