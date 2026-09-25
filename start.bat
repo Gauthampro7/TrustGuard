@@ -20,8 +20,8 @@ if %errorlevel% neq 0 (
     echo [!] System diagnostics reported warnings or failures.
 )
 
-echo [*] Launching TrustGuard Forensics Dashboard in default browser...
-start "" "http://127.0.0.1:8000/dashboard/"
+echo [*] Launching TrustGuard in default browser...
+start "" "http://127.0.0.1:8000/"
 
 echo [*] Starting FastAPI ASGI Server on http://127.0.0.1:8000 ...
 echo [*] Press Ctrl+C in this console window to stop the server anytime.

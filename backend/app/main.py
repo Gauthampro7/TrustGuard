@@ -84,12 +84,13 @@ async def validation_error_handler(request, error):
 async def root(request: Request):
     accept = request.headers.get("accept", "")
     if "text/html" in accept:
-        return RedirectResponse(url="/dashboard/", status_code=307)
+        return RedirectResponse(url="/dashboard/simple.html", status_code=307)
     return {
         "service": "TrustGuard Digital Trust Engine",
         "version": settings.VERSION,
         "docs": f"{settings.API_V1_STR}/docs",
-        "dashboard": "/dashboard/",
+        "dashboard": "/dashboard/simple.html",
+        "workbench": "/dashboard/index.html",
         "status": "ready_for_inspection"
     }
 
