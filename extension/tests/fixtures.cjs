@@ -137,19 +137,21 @@ class SimulatedElement {
   }
 
   _matchesCompound(compound) {
-    // Splits e.g. img.pv-top-card-profile-picture__image--show or [data-testid="user-avatar"]
-    // Matches tag, classes, and attribute brackets
-    const re = /^([a-zA-Z0-9_-]+)?((?:\.[a-zA-Z0-9_-]+)*)((?:\[[^\]]+\])*)$/u;
+    // Splits e.g. section#id, img.class, #id, or [data-testid="user-avatar"]
+    if (compound.startsWith("#")) {
+      return this.id === compound.slice(1);
+    }
+    const re = /^([a-zA-Z0-9_-]+)?(?:#([a-zA-Z0-9_-]+))?((?:\.[a-zA-Z0-9_-]+)*)((?:\[[^\]]+\])*)$/u;
     const match = compound.match(re);
     if (!match) {
-      // Fallback simple checks
       if (compound.startsWith(".")) return this.classList.contains(compound.slice(1));
       if (compound.startsWith("[")) return this._matchesAttr(compound);
       return this.tagName.toLowerCase() === compound.toLowerCase();
     }
 
-    const [, tag, classes, attrs] = match;
+    const [, tag, id, classes, attrs] = match;
     if (tag && this.tagName.toLowerCase() !== tag.toLowerCase()) return false;
+    if (id && this.id !== id) return false;
     if (classes) {
       const classNames = classes.split(".").filter(Boolean);
       for (const cn of classNames) {

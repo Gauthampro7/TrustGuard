@@ -260,8 +260,11 @@
     enabled = false;
     generation += 1;
     clearTimeout(timer);
+    timer = null;
     clearInterval(routeTimer);
+    routeTimer = null;
     observer?.disconnect();
+    observer = null;
     cached = null;
     lastKey = "";
     referenceHandle = "";
