@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from ..forensics import spatial_fft, audio_vocoder, stylometry_drift, cross_modal_sync, homoglyph_hunter
 from ..forensics import canary_tripwire, perceptual_hash, environmental_acoustic, rppg
+from ..forensics import ai_image_classifier, ai_text_classifier
 from ..models.schemas import (
     TrustGuardInspectionVerdict, TrustVector, VerdictSummary, LedgerEvidenceItem,
     PlaybookStep, CanaryTripwireAlert, EnvironmentalForensics,
@@ -26,6 +27,7 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
     ledger, results, modalities = [], [], set()
     scores = {key: [] for key in DIMENSIONS}
     timings, declarations = {}, []
+    usable = []
     declared_degradation = 0.0
     environmental = EnvironmentalForensics()
     tripwire = CanaryTripwireAlert(details="No registered canary match observed; absence does not rule out copying.")
@@ -35,8 +37,12 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
         timings[f"{evidence_id}:{result.name}"] = round(result.elapsed_ms, 3)
         score = result.score if score_override is None else score_override
         evaluated = result.metrics.get("evaluated", True)
+        if evaluated:
+            usable.append(result.uncertainty)
         if dimension and evaluated:
-            scores[dimension].append(score)
+            # A signal is bounded by its own usability, so a degraded source cannot raise suspicion
+            # and an unrelated short text cannot erase a reliable red flag.
+            scores[dimension].append(min(score, 1.15 - result.uncertainty) if result.uncertainty >= 0.5 else score)
         polarity = polarity_override or ("neutral_uncertain" if result.uncertainty >= 0.70 else ("red_flag" if score >= 0.45 else "green_flag"))
         measures = []
         for key in ("highFrequencyPowerRatio", "spectralPeakRatio", "phaseDiscontinuityRate", "briefDigitalSilenceGaps", "yulesK", "urgencyScore", "lagMs", "correlation", "hammingDistance"):
@@ -72,6 +78,7 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
         if samples and samples.imagePixels is not None and item.modality.value in {"image", "video"}:
             if add(spatial_fft.analyze(samples.imagePixels), "mediaSynthesisScore", "media_synthetic", "visual", item.evidenceId):
                 modalities.add("visual")
+            add(ai_image_classifier.analyze(samples.imagePixels), "mediaSynthesisScore", "media_synthetic", "visual", item.evidenceId)
             if samples.referenceImagePixels is not None:
                 result = perceptual_hash.analyze(samples.imagePixels, samples.referenceImagePixels)
                 # Shared avatars are reuse evidence; an authorized profile can reuse its own avatar.
@@ -108,6 +115,9 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
             if add(stylometry_drift.analyze(text, baseline_text=extra.get("baselineText")),
                 "contextualAnomalyScore", "stylometry_behavior", "text", item.evidenceId):
                 modalities.add("text")
+            machine_text = ai_text_classifier.analyze(text)
+            # AI-assisted writing is common and legitimate: alone it can reach SUSPICIOUS, never HIGH.
+            add(machine_text, "mediaSynthesisScore", "media_synthetic", "text", item.evidenceId, score_override=min(machine_text.score, 0.6))
             handle = extra.get("observedHandle")
             if handle:
                 add(homoglyph_hunter.analyze(handle.strip().removeprefix("@"), reference=reference), "identityMismatchScore", "identity_consistency", "text", item.evidenceId)
@@ -136,19 +146,20 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
         raise InsufficientModalities("No usable evidence samples or text were supplied")
     unavailable = [key for key, values in scores.items() if not values]
     # Repeating easy signals must not outvote an unusable or degraded source.
-    uncertainty = max(0.25, max(result.uncertainty for result in results), declared_degradation, 0.10 * len(unavailable))
+    uncertainty = max(0.25, max(usable, default=1.0), declared_degradation, 0.10 * len(unavailable))
+    channel = max(declared_degradation, 0.90 if len(modalities) < 2 else 0.0)
     if len(modalities) < 2:
         uncertainty = max(uncertainty, 0.90)
-    cap = min(1, 1.15 - uncertainty) if uncertainty >= 0.5 else 1
+    cap = min(1, 1.15 - channel) if channel >= 0.5 else 1
     vector = TrustVector(**{key: round(min(max(values, default=0), cap), 4) for key, values in scores.items()},
                          epistemicUncertainty=round(uncertainty, 4))
     maximum = max(vector.model_dump()[key] for key in DIMENSIONS)
-    if uncertainty >= 0.5:
-        tier, headline = "UNCERTAIN_COMPRESSION_NOISE", "Inconclusive / limited or degraded evidence"
-    elif maximum >= 0.7:
+    if maximum >= 0.7:
         tier, headline = "HIGH_IMPERSONATION_RISK", "Multiple signals warrant independent identity checks"
     elif maximum >= 0.4:
         tier, headline = "SUSPICIOUS_ANOMALY", "Anomalies warrant independent verification"
+    elif uncertainty >= 0.5:
+        tier, headline = "UNCERTAIN_COMPRESSION_NOISE", "Inconclusive / limited or degraded evidence"
     else:
         # No automatic authenticity or verified-identity verdict from absence of anomalies.
         tier, headline = "UNCERTAIN_COMPRESSION_NOISE", "No strong measured anomaly / identity remains unverified"
