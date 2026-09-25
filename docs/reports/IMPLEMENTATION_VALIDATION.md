@@ -1,5 +1,44 @@
 # TrustGuard implementation validation
 
+## Integrated release validation (GA-4)
+
+Validated on 2026-09-25 after integrating all team modules into `main`:
+- **Core, contracts & integration (Gautham)**: GA-1 baseline, GA-2 validation gaps (chunked streaming limits, concurrent/repeated audit requests, true LRU cache eviction, failed canary registration, and zero raw-sample leakage), GA-3 trustworthy diagnostics.
+- **Forensic extractors (Akarsh)**: AK-1 seeded perturbation bench, AK-2 reproduced edge-case fixes (sync ambiguity, near-silent vocoder dither, homoglyph combining mark normalization), AK-3 bounded latency benchmark for every extractor.
+- **Chrome extension (Achumit)**: AC-1 three-platform adapter matrix (X, Instagram, LinkedIn), fail-closed handling on malformed URLs/missing headers, zero feed/DM leakage into payloads.
+- **Dashboard frontend (Aril)**: AR-1 reversible adversarial sandbox (0%–70% degradation slider, live apply/reset), AR-2 accessibility (high contrast focus, ARIA live regions, non-color-only badges, 200% zoom reflow), AR-3 failure regressions (engine unavailable, 422 payload errors, interrupted media, expired audit link handling).
+
+### Full validation test results
+- `python scripts/check_module.py all --browser`: **ALL PASSED**.
+  - `python scripts/export_contracts.py --check`: **Valid** (zero drift against v1 contracts and extractor ABI).
+  - `python -m pytest tests/`: **336 passed** (including core API, contract architecture, forensic measurements, environmental acoustic, performance, and perturbation bench).
+  - JavaScript syntax checks: `node --check` passed for all frontend and extension scripts.
+  - `node --test extension/tests/*.test.cjs`: **34 passed** (background, content, platforms fixture matrix).
+  - `node frontend/tests/browser-smoke.cjs`: **12/12 checks passed** in real headless Chromium against the live backend API.
+- `python scripts/diagnostics.py`: **5/5 passed** (~650 ms runtime across all four live scenario extractions, reporting versions, uncertainty bounds, and per-extractor timings without calling whole-request run an SLA).
+
+### Bounded laptop benchmark measurements (AK-3 on Windows)
+Host: Intel64 Family 6 Model 170 Stepping 4, Windows build 26200, Python 3.11.9, NumPy 2.4.6. Timing over 10 warmed calls after 3 warm-ups, garbage collection paused during timing:
+
+| Extractor workload | Bound exercised | Median ms | p95 ms | Max ms | < 150 ms |
+| --- | --- | ---: | ---: | ---: | :---: |
+| spatial_fft | 256x256 RGBA list | 16.37 | 17.40 | 17.40 | yes |
+| audio_vocoder@16k | 96,000 samples, 16 kHz | 22.48 | 23.52 | 23.52 | yes |
+| audio_vocoder@48k | 96,000 samples, 48 kHz | 22.42 | 23.04 | 23.04 | yes |
+| stylometry_drift | 20,000 chars + 20,000-char baseline | 4.35 | 5.91 | 5.91 | yes |
+| cross_modal_sync@25 | 1,500 paired samples, 25/s | 0.63 | 1.41 | 1.41 | yes |
+| cross_modal_sync@120 | 1,500 paired samples, 120/s | 2.45 | 2.53 | 2.53 | yes |
+| homoglyph_hunter | 20,000 adversarial chars + reference | 19.31 | 22.29 | 22.29 | yes |
+| perceptual_hash | two 256x256 RGBA lists | 25.58 | 27.61 | 27.61 | yes |
+| canary_tripwire.detect | 20,000 chars | 0.02 | 0.03 | 0.03 | yes |
+| canary_tripwire.generate | 19,800 chars | 0.03 | 0.04 | 0.04 | yes |
+| environmental_acoustic | 96,000-sample measured IR, 16 kHz | 4.66 | 5.12 | 5.12 | yes |
+| rppg@25 | 1,500 RGB means, 25/s (60 s) | 0.59 | 0.62 | 0.62 | yes |
+| rppg@120 | 1,500 RGB means, 120/s (12.5 s) | 0.57 | 0.60 | 0.60 | yes |
+
+### Proposal Decisions
+- **AK-2 (Akarsh)**: **Accepted**. The additive diagnostic metrics (`ambiguousLag`, `alternativeLagMs`, `peakDbfs`) and bounded uncertainty-raising on ambiguous periodic alignments and low-level noise floors are accepted into v1. All v1 schemas, units, and types remain fully backward-compatible.
+
 ## Parallel-module refactor validation
 
 Validated on 2026-09-25 after splitting API handlers, relocating owner-specific tests, publishing typed HTTP/forensic contracts and adding independent team checks. The measurements and product results below this section describe the earlier implementation baseline.

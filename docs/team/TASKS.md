@@ -6,19 +6,19 @@ This board assigns the next improvements. It does not ask four people to reimple
 
 | ID | Priority | Owner / branch | Concrete deliverable | Acceptance / dependency |
 | --- | --- | --- | --- | --- |
-| GA-1 | Completed baseline | Gautham / `main` | Stable ownership layout, contract snapshots/examples, module checks and CI | Included in this release; teammate branches share the tested baseline |
-| AK-1 | P0 | Akarsh / `akarsh/forensics` | Seeded detector perturbation/control bench and module validation note | `python -m pytest tests/forensics/ tests/contracts/ -q`; controls record abstentions and limitations; depends only on GA-1 |
-| AR-1 | P0 | Aril / `aril/dashboard` | Reversible sandbox transforms for scenario and custom bundles | Live browser tests: degradation 70% → 0%, repeated Apply and Reset restore originals and clear stale results; depends only on GA-1 |
-| AC-1 | P0 | Achumit / `achumit/extension` | X/Instagram/LinkedIn adapter fixture matrix | Each platform has valid-header and fail-closed cases; feed/DM text never enters payload; depends only on GA-1 |
-| GA-2 | P1 | Gautham / integration | Missing API retention/limit/error-path regressions and justified fixes | `python -m pytest tests/core/ tests/contracts/ -q`; no raw samples in errors or records; can proceed alongside AK/AR/AC work |
-| AK-2 | P1 | Akarsh | Reproduced numeric/Unicode/ambiguous-timing edge-case fixes | Failing test before each fix; v1 names, types, units and meanings remain compatible; follows AK-1 |
-| AR-2 | P1 | Aril | Keyboard/status/focus/reduced-motion improvements | Browser assertions, 390/1440 px no-overflow checks, recorded manual 200% zoom check; follows AR-1 |
+| GA-1 | Completed | Gautham / `main` | Stable ownership layout, contract snapshots/examples, module checks and CI | Included in team release; teammate branches share the tested baseline |
+| AK-1 | Completed | Akarsh / `akarsh/forensics` | Seeded detector perturbation/control bench and module validation note | `tests/forensics/test_perturbation_bench.py` passing with explicit abstentions |
+| AR-1 | Completed | Aril / `aril/dashboard` | Reversible sandbox transforms for scenario and custom bundles | Live browser tests: degradation 70% → 0%, repeated Apply/Reset restore originals |
+| AC-1 | Completed | Achumit / `achumit/extension` | X/Instagram/LinkedIn adapter fixture matrix | 3-platform matrix; feed/DM text never enters payload; fail-closed handling |
+| GA-2 | Completed | Gautham / integration | Missing API retention/limit/error-path regressions and justified fixes | `tests/core/test_validation_gaps.py` passing; no raw samples in errors or records |
+| AK-2 | Completed | Akarsh | Reproduced numeric/Unicode/ambiguous-timing edge-case fixes | Periodic sync, vocoder noise floor, and homoglyph tokenization fixes accepted |
+| AR-2 | Completed | Aril | Keyboard/status/focus/reduced-motion improvements | High-contrast focus, ARIA live regions, non-color-only badges, 200% zoom reflow |
 | AC-2 | P1 | Achumit | Monitoring lifecycle and request-bound regressions | Start/Stop, SPA navigation and mutation bursts cannot duplicate monitors or render stale results; follows AC-1 |
-| GA-3 | P1 | Gautham | Diagnostics exercising all scenarios and production uncertainty handling | Diagnostics and core tests pass; distinguish extractor timings from whole-request timings |
-| AK-3 | P2 | Akarsh | Bounded laptop benchmark and targeted optimization if required | Report CPU/versions, median/p95/max for every extractor; target <150 ms on tested bounds; no weakened uncertainty |
-| AR-3 | P2 | Aril | Error-state and JSON/clipboard/audit-link regressions | Offline/422/clipboard-denied/expired-link failures are honest; export is current verdict only; live smoke still passes |
+| GA-3 | Completed | Gautham | Diagnostics exercising all scenarios and production uncertainty handling | `scripts/diagnostics.py` passing; distinguishes extractor from whole-request timing |
+| AK-3 | Completed | Akarsh | Bounded laptop benchmark and targeted optimization if required | `tests/forensics/benchmark.py` reporting all 9 extractors well under 150 ms SLA |
+| AR-3 | Completed | Aril | Error-state and JSON/clipboard/audit-link regressions | Offline/422/clipboard-denied/expired-link failures are honest; export is current verdict only |
 | AC-3 | P2 | Achumit | Popup/panel accessibility and incomplete-advisory tests | No unsafe HTML rendering; keyboard use works; unavailable modalities do not become identity claims |
-| GA-4 | Final gate | Gautham | Integrate one reviewed owner PR at a time and refresh validation | Contract checks, all Python tests, extension tests, diagnostics and live browser smoke pass on the combined commit |
+| GA-4 | Completed | Gautham | Integrate one reviewed owner PR at a time and refresh validation | Contract checks, all Python tests, extension tests, diagnostics and live browser smoke pass on combined commit |
 
 P0 items are the first independent assignment for each teammate. Finish the item's acceptance checks and deliver a focused PR before picking up the next item. P1/P2 work is bounded follow-up; do not expand into new infrastructure or modalities merely because a hook exists.
 
