@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "integrationOwner": "gautham",
+  "defaultOwner": "gautham",
+  "members": {
+    "gautham": {"name": "Gautham", "module": "core", "branch": "main", "github": "Gauthampro7"},
+    "akarsh": {"name": "Akarsh", "module": "forensics", "branch": "akarsh/forensics", "github": null},
+    "aril": {"name": "Aril", "module": "dashboard", "branch": "aril/dashboard", "github": null},
+    "achumit": {"name": "Achumit", "module": "extension", "branch": "achumit/extension", "github": null}
+  },
+  "rules": [
+    {"path": "backend/app/forensics/", "owner": "akarsh"},
+    {"path": "backend/app/forensics/common.py", "owner": "gautham"},
+    {"path": "backend/app/forensics/AGENTS.md", "owner": "gautham"},
+    {"path": "tests/forensics/", "owner": "akarsh"},
+    {"path": "frontend/", "owner": "aril"},
+    {"path": "frontend/AGENTS.md", "owner": "gautham"},
+    {"path": "extension/", "owner": "achumit"},
+    {"path": "extension/AGENTS.md", "owner": "gautham"},
+    {"path": "docs/team/people/akarsh.md", "owner": "akarsh"},
+    {"path": "docs/team/people/aril.md", "owner": "aril"},
+    {"path": "docs/team/people/achumit.md", "owner": "achumit"},
+    {"path": "contracts/proposals/akarsh/", "owner": "akarsh"},
+    {"path": "contracts/proposals/aril/", "owner": "aril"},
+    {"path": "contracts/proposals/achumit/", "owner": "achumit"}
+  ]
+}

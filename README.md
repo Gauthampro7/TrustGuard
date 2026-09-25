@@ -2,6 +2,12 @@
 
 Local multimodal inspection for Track 01 PS-02: AI for Digital Trust. TrustGuard measures media and text, exposes both suspicious and mitigating findings, and requires independent human checks before an analyst seals a report. No score is proof.
 
+## Parallel team workspace
+
+Start with the [team workflow](docs/team/README.md) and [assigned backlog](docs/team/TASKS.md). **Gautham** owns core/API/contracts and integration on this device; **Akarsh** owns forensic engines; **Aril** owns the dashboard; **Achumit** owns the extension. Each has disjoint paths, a branch and a [personal brief](docs/team/people/). Shared protocols are frozen in [contracts/v1/](contracts/v1/) and checked automatically; shared changes go in each person's own proposal directory.
+
+Run `python scripts/check_module.py <core|forensics|dashboard|extension|all>` and `python scripts/check_ownership.py --base origin/main` before handing off. `python scripts/export_contracts.py --check` checks API/extractor compatibility without requiring future detectors to reproduce old heuristic scores. See [contracts/README.md](contracts/README.md) for units, errors and versioning.
+
 ## Run on Windows
 
 Python 3.11+ and a modern Chromium browser are sufficient. There are no GPU, downloaded model-weight or paid API dependencies.
@@ -15,7 +21,7 @@ This automatically checks your environment, runs the system diagnostics suite, o
 
 ### Manual Launch
 ```powershell
-python -m pip install -r backend/requirements.txt
+python -m pip install -r backend/requirements.txt -c backend/constraints.txt
 python scripts/diagnostics.py
 python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -93,22 +99,24 @@ The default QR URL works on the computer running the backend. For a phone on a t
 
 ```powershell
 python -m pytest tests/
-python -m pytest tests/test_performance.py tests/test_environmental.py -s -q
+python -m pytest tests/forensics/test_performance.py tests/forensics/test_environmental.py -s -q
 node --test extension/tests/*.test.cjs
 ```
 
 The tests cover real feature extraction, multimodality enforcement, degradation bounds, canaries, malformed inputs, full API flows, signature/PDF tampering and extension consent/navigation behavior. PDF QR decoding is tested when optional PyMuPDF and OpenCV are installed. Bounded warmed extractor timings target <150 ms on the test host; model imports, browser decoding, HTTP transport and PDF generation are outside the extractor budget. Hardware and OS scheduling can affect latency.
 
-For browser validation, install Playwright with `npm install --no-save playwright`, install its browser with `npx playwright install chromium`, start the backend, then run `node scripts/test_dashboard.cjs`. An existing Chromium binary can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE`; `PLAYWRIGHT_MODULE` can point to an existing Playwright installation. The script exercises the live local API and writes its report and desktop/mobile screenshots under `scratch/dashboard-smoke/`.
+For browser validation, install the locked Playwright dependency with `npm ci`, install its browser with `npx playwright install chromium`, start the backend, then run `node frontend/tests/browser-smoke.cjs`. The old `node scripts/test_dashboard.cjs` command remains a compatibility wrapper. An existing Chromium binary can be selected with `PLAYWRIGHT_CHROMIUM_EXECUTABLE`; `PLAYWRIGHT_MODULE` can point to an existing Playwright installation. The suite exercises the live local API and writes its report and screenshots under `scratch/dashboard-smoke/`.
 
 ## Project map
 
 - `backend/app/forensics/`: bounded CPU measurements and vendored Unicode data.
 - `backend/app/core/`: inspection synthesis, deterministic dialectic, configuration and volatile signed records.
-- `backend/app/api/`: live API and three fixture loaders.
+- `backend/app/api/endpoints/`: separate inspection/profile/scenario/canary/audit/system routers; `api/routes.py` composes them and `api/dependencies.py` owns shared dispatch state.
 - `frontend/`: accessible responsive evidence workbench.
 - `extension/`: Manifest V3 public-DOM inspector.
-- `tests/`: schemas, extractors, performance, environment signals and API regressions.
+- `tests/core/`, `tests/forensics/`, `tests/contracts/`: separately owned API, detector, performance and shared-protocol checks.
+- `contracts/`: versioned interfaces, synthetic examples, ownership rules and per-person proposals.
+- `docs/team/`: four owner briefs, bounded tasks and integration protocol.
 - `docs/presentations/`, `docs/reports/`: existing presentation and defense artifacts. Earlier pitch documents describe ambitions beyond the implemented scope above.
 
 See [OPENSPEC.md](OPENSPEC.md) for the original contracts and implementation amendments.

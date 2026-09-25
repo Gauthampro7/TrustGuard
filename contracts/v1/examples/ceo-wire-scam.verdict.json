@@ -1,0 +1,126 @@
+{
+  "adversarialDialectic": {
+    "defenseMitigation": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.008308; spectralPeakRatio=2.855142. Feature reliability is not a probability of authenticity. The visual spectrum evaluates a sampled frame, not a full video, face identity or biological liveness. Unmeasured dimensions have index zero, not verified authenticity: identityMismatchScore.",
+    "judicialSynthesis": "Rule-based synthesis, not an independent AI adjudication. Uncertainty is 0.46; each suspicion dimension is bounded at 1.00. Unmeasured dimensions: identityMismatchScore. These are heuristic indices, not calibrated probabilities or proof of identity. Complete the independent verification playbook.",
+    "prosecutionArgument": "Best envelope alignment has a 320 ms mouth delay relative to audio. Envelope correlation is a coarse timing cue; network drift, editing and speaking dynamics can explain offsets. Measurements: lagMs=320.0; correlation=1.0. Feature reliability is not a probability of authenticity. Brief digital silence and spectral transitions warrant listening to the unprocessed recording. Phase behavior and silence are not vocoder-specific; noise reduction, codecs and edits are plausible alternatives. Measurements: phaseDiscontinuityRate=0.012539; briefDigitalSilenceGaps=4. Feature reliability is not a probability of authenticity. Payment pressure and verification bypass language require an independent callback. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=216.673273; urgencyScore=1.0. Feature reliability is not a probability of authenticity."
+  },
+  "assessmentTier": "HIGH_IMPERSONATION_RISK",
+  "calibratedTrustVector": {
+    "contextualAnomalyScore": 0.85,
+    "crossModalDiscordanceScore": 0.5,
+    "epistemicUncertainty": 0.4562,
+    "identityMismatchScore": 0.0,
+    "mediaSynthesisScore": 0.55
+  },
+  "environmentalForensics": {
+    "ambientAcousticProfile": null,
+    "measurementNotes": null,
+    "pulseFrequencyHz": null,
+    "reverberationMatchScore": null,
+    "rppgPulseConfidence": null,
+    "rt60Sec": null
+  },
+  "evaluatedAt": "2026-09-24T00:00:00+00:00",
+  "evidenceLedger": [
+    {
+      "affectedSpan": null,
+      "confidence": 0.6,
+      "finding": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.008308; spectralPeakRatio=2.855142. Feature reliability is not a probability of authenticity.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "green_flag",
+      "signalId": "conference-frame:spatial_fft"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "The visual spectrum evaluates a sampled frame, not a full video, face identity or biological liveness.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "neutral_uncertain",
+      "signalId": "conference-frame:frame-limit"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.65,
+      "finding": "Best envelope alignment has a 320 ms mouth delay relative to audio. Envelope correlation is a coarse timing cue; network drift, editing and speaking dynamics can explain offsets. Measurements: lagMs=320.0; correlation=1.0. Feature reliability is not a probability of authenticity.",
+      "layer": "cross_modal",
+      "modality": "audio+visual",
+      "polarity": "red_flag",
+      "signalId": "conference-frame:cross_modal_sync"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.55,
+      "finding": "Brief digital silence and spectral transitions warrant listening to the unprocessed recording. Phase behavior and silence are not vocoder-specific; noise reduction, codecs and edits are plausible alternatives. Measurements: phaseDiscontinuityRate=0.012539; briefDigitalSilenceGaps=4. Feature reliability is not a probability of authenticity.",
+      "layer": "media_synthetic",
+      "modality": "audio",
+      "polarity": "red_flag",
+      "signalId": "gated-speech:audio_vocoder"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.5437,
+      "finding": "Payment pressure and verification bypass language require an independent callback. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=216.673273; urgencyScore=1.0. Feature reliability is not a probability of authenticity.",
+      "layer": "stylometry_behavior",
+      "modality": "text",
+      "polarity": "red_flag",
+      "signalId": "wire-message:stylometry_drift"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "Unmeasured dimensions have index zero, not verified authenticity: identityMismatchScore.",
+      "layer": "context_grounding",
+      "modality": "coverage",
+      "polarity": "neutral_uncertain",
+      "signalId": "coverage:missing"
+    }
+  ],
+  "innovationMetadata": {
+    "calibration": "Heuristic uncertainty bounds v1; not empirically probability-calibrated. Ledger confidence means feature usability.",
+    "contractExample": "Frozen synthetic reference; not probability truth or a numeric regression target.",
+    "elapsedMs": "0.000",
+    "evaluatedModalities": "audio,text,visual",
+    "extractorTimingsMs": "{\"conference-frame:cross_modal_sync\": 0.0, \"conference-frame:spatial_fft\": 0.0, \"gated-speech:audio_vocoder\": 0.0, \"wire-message:stylometry_drift\": 0.0}",
+    "fixtureId": "ceo-wire-scam",
+    "retention": "Samples processed in memory only; only derived verdicts retained in a bounded process-local cache.",
+    "simulation": "true",
+    "unavailableDimensions": "identityMismatchScore"
+  },
+  "requestId": "req_contract_v1_ceo-wire-scam",
+  "tripwireStatus": {
+    "details": "No registered canary match observed; absence does not rule out copying.",
+    "tripwireTriggered": false,
+    "tripwireType": null
+  },
+  "verdictId": "ver_contract_v1_ceo-wire-scam",
+  "verdictSummary": {
+    "coreAnomaly": "Best envelope alignment has a 320 ms mouth delay relative to audio. Envelope correlation is a coarse timing cue; network drift, editing and speaking dynamics can explain offsets. Measurements: lagMs=320.0; correlation=1.0. Feature reliability is not a probability of authenticity.",
+    "headline": "Multiple signals warrant independent identity checks",
+    "noScoreIsProofNotice": "Under TrustGuard core architecture, no single score constitutes legal or definitive proof. Review the calibrated 5D Trust Vector and complete the Human Verification Playbook before taking adverse action."
+  },
+  "verificationPlaybook": [
+    {
+      "action": "Contact a known independent channel",
+      "instruction": "Call a previously known number or internal directory PBX. Do not use contact details supplied by the suspicious account.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 1
+    },
+    {
+      "action": "Check the original source",
+      "instruction": "Request the original recording and compare the full context, account spelling and consented reference archive. Matching avatars or pulse traces do not prove identity.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 2
+    },
+    {
+      "action": "Confirm the requested action",
+      "instruction": "Verify payment details or access requests with a second authorized person through an established channel. Record what was checked before drawing a conclusion.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 3
+    }
+  ]
+}

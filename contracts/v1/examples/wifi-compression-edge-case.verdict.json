@@ -1,0 +1,117 @@
+{
+  "adversarialDialectic": {
+    "defenseMitigation": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.681451; spectralPeakRatio=1.739207. Feature reliability is not a probability of authenticity. The visual spectrum evaluates a sampled frame, not a full video, face identity or biological liveness. Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=118.343195; urgencyScore=0.2. Feature reliability is not a probability of authenticity.",
+    "judicialSynthesis": "Rule-based synthesis, not an independent AI adjudication. Uncertainty is 0.80; each suspicion dimension is bounded at 0.35. Unmeasured dimensions: crossModalDiscordanceScore, identityMismatchScore. These are heuristic indices, not calibrated probabilities or proof of identity. Complete the independent verification playbook.",
+    "prosecutionArgument": "No measured feature crossed an anomaly threshold. This does not establish authenticity."
+  },
+  "assessmentTier": "UNCERTAIN_COMPRESSION_NOISE",
+  "calibratedTrustVector": {
+    "contextualAnomalyScore": 0.17,
+    "crossModalDiscordanceScore": 0.0,
+    "epistemicUncertainty": 0.8,
+    "identityMismatchScore": 0.0,
+    "mediaSynthesisScore": 0.1633
+  },
+  "environmentalForensics": {
+    "ambientAcousticProfile": null,
+    "measurementNotes": null,
+    "pulseFrequencyHz": null,
+    "reverberationMatchScore": null,
+    "rppgPulseConfidence": null,
+    "rt60Sec": null
+  },
+  "evaluatedAt": "2026-09-24T00:00:00+00:00",
+  "evidenceLedger": [
+    {
+      "affectedSpan": null,
+      "confidence": 0.25,
+      "finding": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.681451; spectralPeakRatio=1.739207. Feature reliability is not a probability of authenticity.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "neutral_uncertain",
+      "signalId": "compressed-frame:spatial_fft"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "The visual spectrum evaluates a sampled frame, not a full video, face identity or biological liveness.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "neutral_uncertain",
+      "signalId": "compressed-frame:frame-limit"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.5687,
+      "finding": "Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=118.343195; urgencyScore=0.2. Feature reliability is not a probability of authenticity.",
+      "layer": "stylometry_behavior",
+      "modality": "text",
+      "polarity": "green_flag",
+      "signalId": "field-transcript:stylometry_drift"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "Caller reports quality degradation 0.80. The declaration raises uncertainty; it is not independently verified.",
+      "layer": "media_synthetic",
+      "modality": "capture_context",
+      "polarity": "neutral_uncertain",
+      "signalId": "quality:declared"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "Unmeasured dimensions have index zero, not verified authenticity: crossModalDiscordanceScore, identityMismatchScore.",
+      "layer": "context_grounding",
+      "modality": "coverage",
+      "polarity": "neutral_uncertain",
+      "signalId": "coverage:missing"
+    }
+  ],
+  "innovationMetadata": {
+    "calibration": "Heuristic uncertainty bounds v1; not empirically probability-calibrated. Ledger confidence means feature usability.",
+    "contractExample": "Frozen synthetic reference; not probability truth or a numeric regression target.",
+    "elapsedMs": "0.000",
+    "evaluatedModalities": "text,visual",
+    "extractorTimingsMs": "{\"compressed-frame:spatial_fft\": 0.0, \"field-transcript:stylometry_drift\": 0.0}",
+    "fixtureId": "wifi-compression-edge-case",
+    "retention": "Samples processed in memory only; only derived verdicts retained in a bounded process-local cache.",
+    "simulation": "true",
+    "unavailableDimensions": "crossModalDiscordanceScore,identityMismatchScore"
+  },
+  "requestId": "req_contract_v1_wifi-compression-edge-case",
+  "tripwireStatus": {
+    "details": "No registered canary match observed; absence does not rule out copying.",
+    "tripwireTriggered": false,
+    "tripwireType": null
+  },
+  "verdictId": "ver_contract_v1_wifi-compression-edge-case",
+  "verdictSummary": {
+    "coreAnomaly": "Review measured features and evidence gaps; this assessment does not establish identity or media origin.",
+    "headline": "Inconclusive / limited or degraded evidence",
+    "noScoreIsProofNotice": "Under TrustGuard core architecture, no single score constitutes legal or definitive proof. Review the calibrated 5D Trust Vector and complete the Human Verification Playbook before taking adverse action."
+  },
+  "verificationPlaybook": [
+    {
+      "action": "Contact a known independent channel",
+      "instruction": "Call a previously known number or internal directory PBX. Do not use contact details supplied by the suspicious account.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 1
+    },
+    {
+      "action": "Check the original source",
+      "instruction": "Request the original recording and compare the full context, account spelling and consented reference archive. Matching avatars or pulse traces do not prove identity.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 2
+    },
+    {
+      "action": "Confirm the requested action",
+      "instruction": "Verify payment details or access requests with a second authorized person through an established channel. Record what was checked before drawing a conclusion.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 3
+    }
+  ]
+}

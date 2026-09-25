@@ -1,0 +1,30 @@
+{
+  "files": [
+    "ceo-wire-scam.request.json",
+    "ceo-wire-scam.verdict.json",
+    "creator-copyright.request.json",
+    "creator-copyright.verdict.json",
+    "homoglyph-clone.request.json",
+    "homoglyph-clone.verdict.json",
+    "profile-multimodal.request.json",
+    "profile-multimodal.response.json",
+    "profile-text-only.request.json",
+    "profile-text-only.response.json",
+    "wifi-compression-edge-case.request.json",
+    "wifi-compression-edge-case.verdict.json"
+  ],
+  "normalization": "Stable request/verdict IDs and evaluatedAt; elapsedMs and extractorTimingsMs zeroed. No raw real-world biometrics.",
+  "notice": "All samples are synthetic demonstrations. Frozen scores are not authenticity probabilities, truth labels, or numeric regression targets.",
+  "profiles": [
+    "profile-text-only",
+    "profile-multimodal"
+  ],
+  "protocolVersion": "1.0.0",
+  "scenarios": [
+    "ceo-wire-scam",
+    "creator-copyright",
+    "homoglyph-clone",
+    "wifi-compression-edge-case"
+  ],
+  "synthetic": true
+}

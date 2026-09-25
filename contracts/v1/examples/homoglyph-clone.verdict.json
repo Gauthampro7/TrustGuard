@@ -1,0 +1,117 @@
+{
+  "adversarialDialectic": {
+    "defenseMitigation": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.008308; spectralPeakRatio=2.855142. Feature reliability is not a probability of authenticity. The image closely matches the supplied reference under a 63-bit DCT perceptual hash. Avatar reuse may be authorized; pHash is not face recognition and is not collision-resistant. Measurements: hammingDistance=0. Feature reliability is not a probability of authenticity. Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=85.813149; urgencyScore=0.2. Feature reliability is not a probability of authenticity.",
+    "judicialSynthesis": "Rule-based synthesis, not an independent AI adjudication. Uncertainty is 0.47; each suspicion dimension is bounded at 1.00. Unmeasured dimensions: crossModalDiscordanceScore. These are heuristic indices, not calibrated probabilities or proof of identity. Complete the independent verification playbook.",
+    "prosecutionArgument": "The identifier differs from the reference but has the same Unicode confusable skeleton. An identifier token mixes Latin letters with Cyrillic/Greek lookalikes. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Measurements: U+0430 resembles 'a'. Feature reliability is not a probability of authenticity."
+  },
+  "assessmentTier": "HIGH_IMPERSONATION_RISK",
+  "calibratedTrustVector": {
+    "contextualAnomalyScore": 0.35,
+    "crossModalDiscordanceScore": 0.0,
+    "epistemicUncertainty": 0.4688,
+    "identityMismatchScore": 0.9,
+    "mediaSynthesisScore": 0.0323
+  },
+  "environmentalForensics": {
+    "ambientAcousticProfile": null,
+    "measurementNotes": null,
+    "pulseFrequencyHz": null,
+    "reverberationMatchScore": null,
+    "rppgPulseConfidence": null,
+    "rt60Sec": null
+  },
+  "evaluatedAt": "2026-09-24T00:00:00+00:00",
+  "evidenceLedger": [
+    {
+      "affectedSpan": null,
+      "confidence": 0.6,
+      "finding": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.008308; spectralPeakRatio=2.855142. Feature reliability is not a probability of authenticity.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "green_flag",
+      "signalId": "copied-avatar:spatial_fft"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.65,
+      "finding": "The image closely matches the supplied reference under a 63-bit DCT perceptual hash. Avatar reuse may be authorized; pHash is not face recognition and is not collision-resistant. Measurements: hammingDistance=0. Feature reliability is not a probability of authenticity.",
+      "layer": "context_grounding",
+      "modality": "visual",
+      "polarity": "neutral_uncertain",
+      "signalId": "copied-avatar:perceptual_hash"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.5312,
+      "finding": "Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=85.813149; urgencyScore=0.2. Feature reliability is not a probability of authenticity.",
+      "layer": "stylometry_behavior",
+      "modality": "text",
+      "polarity": "green_flag",
+      "signalId": "cloned-profile:stylometry_drift"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.85,
+      "finding": "The identifier differs from the reference but has the same Unicode confusable skeleton. An identifier token mixes Latin letters with Cyrillic/Greek lookalikes. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Measurements: U+0430 resembles 'a'. Feature reliability is not a probability of authenticity.",
+      "layer": "identity_consistency",
+      "modality": "text",
+      "polarity": "red_flag",
+      "signalId": "cloned-profile:homoglyph_hunter"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "Unmeasured dimensions have index zero, not verified authenticity: crossModalDiscordanceScore.",
+      "layer": "context_grounding",
+      "modality": "coverage",
+      "polarity": "neutral_uncertain",
+      "signalId": "coverage:missing"
+    }
+  ],
+  "innovationMetadata": {
+    "calibration": "Heuristic uncertainty bounds v1; not empirically probability-calibrated. Ledger confidence means feature usability.",
+    "contractExample": "Frozen synthetic reference; not probability truth or a numeric regression target.",
+    "elapsedMs": "0.000",
+    "evaluatedModalities": "text,visual",
+    "extractorTimingsMs": "{\"cloned-profile:homoglyph_hunter\": 0.0, \"cloned-profile:stylometry_drift\": 0.0, \"copied-avatar:perceptual_hash\": 0.0, \"copied-avatar:spatial_fft\": 0.0}",
+    "fixtureId": "homoglyph-clone",
+    "retention": "Samples processed in memory only; only derived verdicts retained in a bounded process-local cache.",
+    "simulation": "true",
+    "unavailableDimensions": "crossModalDiscordanceScore"
+  },
+  "requestId": "req_contract_v1_homoglyph-clone",
+  "tripwireStatus": {
+    "details": "No registered canary match observed; absence does not rule out copying.",
+    "tripwireTriggered": false,
+    "tripwireType": null
+  },
+  "verdictId": "ver_contract_v1_homoglyph-clone",
+  "verdictSummary": {
+    "coreAnomaly": "The identifier differs from the reference but has the same Unicode confusable skeleton. An identifier token mixes Latin letters with Cyrillic/Greek lookalikes. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Measurements: U+0430 resembles 'a'. Feature reliability is not a probability of authenticity.",
+    "headline": "Multiple signals warrant independent identity checks",
+    "noScoreIsProofNotice": "Under TrustGuard core architecture, no single score constitutes legal or definitive proof. Review the calibrated 5D Trust Vector and complete the Human Verification Playbook before taking adverse action."
+  },
+  "verificationPlaybook": [
+    {
+      "action": "Contact a known independent channel",
+      "instruction": "Call a previously known number or internal directory PBX. Do not use contact details supplied by the suspicious account.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 1
+    },
+    {
+      "action": "Check the original source",
+      "instruction": "Request the original recording and compare the full context, account spelling and consented reference archive. Matching avatars or pulse traces do not prove identity.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 2
+    },
+    {
+      "action": "Confirm the requested action",
+      "instruction": "Verify payment details or access requests with a second authorized person through an established channel. Record what was checked before drawing a conclusion.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 3
+    }
+  ]
+}

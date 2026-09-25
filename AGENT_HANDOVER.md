@@ -1,5 +1,7 @@
 # TrustGuard: Agent Handover & Innovation Briefing for Astra Ultra
 
+> **Parallel workspace update:** Read AGENTS.md and docs/team/README.md first. Gautham owns current-device core/API/contracts/integration; Akarsh owns detectors, Aril the dashboard, and Achumit the extension. Tasks are in docs/team/TASKS.md; frozen protocols in contracts/v1/. API handlers are split into api/endpoints/, tests into core/forensics/contracts, and the browser suite into frontend/tests/. Historical paths below remain context; README.md and the team guide contain current commands.
+
 > **Implementation update, 2026-09-25:** The implementation is complete across all layers. See README.md for current scope and launch instructions, and docs/reports/IMPLEMENTATION_VALIDATION.md for 102 passing Python tests, 11 extension checks, 4 live Chromium scenario validations, and zero browser overflow. All 6 creative frontiers (Adversarial Dialectic, RT60 Environmental Acoustics, Steganographic Canary Tripwires, rPPG Periodicity, Attacker vs Defender Sandbox, and Ed25519 Signed Audit Certificates) are implemented and verified.
  
  ---

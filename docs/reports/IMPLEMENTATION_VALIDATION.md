@@ -1,5 +1,19 @@
 # TrustGuard implementation validation
 
+## Parallel-module refactor validation
+
+Validated on 2026-09-25 after splitting API handlers, relocating owner-specific tests, publishing typed HTTP/forensic contracts and adding independent team checks. The measurements and product results below this section describe the earlier implementation baseline.
+
+- `python scripts/check_module.py all`: 123 Python tests, 11 extension tests, JavaScript syntax and frozen-contract checks passed in the existing environment. After the final typed-response changes, a fresh `.venv` installed from `backend/requirements.txt` with `backend/constraints.txt` passed 122 Python tests with one optional QR-decoding test skipped, plus all 11 extension tests and syntax/contract checks.
+- The optional `tests/core/test_api.py::test_pdf_qr_decodes_to_the_verification_endpoint` test passed separately after the final changes in the existing environment, which has PyMuPDF and OpenCV installed. Those optional packages are not required by the runtime setup.
+- `python scripts/diagnostics.py` passed all five checks in the fresh environment. `npm ci` installed the locked browser tooling successfully.
+- `python scripts/check_module.py dashboard --browser` passed in real Chromium against the final fresh-environment API. All four scenarios rendered the API's vector, evidence, dialectic and playbook correctly; audit gating/PDF verification, canaries, bounded image/audio/video intake and stale-result rejection passed. No browser errors or horizontal overflow were reported at 1440 px desktop and 390 px mobile widths.
+- API paths and operation IDs remain stable. Scenario response bytes and existing discovery/canary outputs were checked for parity. Frozen-contract tests reject API/signature/required-metric drift while allowing changed numerical detector measurements. Ownership and architecture checks passed, as did `git diff --check`.
+
+The module backlog is in [the team task board](../team/TASKS.md). This refactor does not complete those separately assigned improvements. Local checks do not establish live social-platform compatibility or empirical detector calibration. GitHub Actions results are recorded by the workflow on the published commit; the results above are local validation.
+
+## Earlier implementation baseline
+
 Validation date: 2026-09-25. CPU: Intel Core Ultra 9 185H. Windows build 26200; Python 3.11.9, NumPy 2.4.6, FastAPI 0.138.2 and Pydantic 2.13.4. No GPU or remote inference service was used.
 
 `python -m pytest tests/ -q`: **102 passed**, including schema compatibility, real extractor measurements, API scenarios (executive wire scam, homoglyph clone, Wi-Fi compression edge case, and creator copyright / canary tripwire), scenario listings, forensic capability introspection, malformed and insufficient inputs, conservative uncertainty, canaries, report signatures and real PDF QR decoding. One dependency deprecation warning concerns Starlette's current HTTPX test transport; no test failed.
@@ -22,7 +36,7 @@ Each measurement below used eight warmed calls. Main-module timings include Pyth
 | Room decay | 96,000 impulse-response samples | — | — | 10.99 |
 | Chrominance periodicity | 1,500 RGB means | — | — | 29.16 |
 
-All measured calls were below the 150 ms extractor target. Import/startup time, whole-file browser decoding, HTTP parsing/serialization and PDF generation are separate costs. Run `python -m pytest tests/test_performance.py tests/test_environmental.py -s -q` to reproduce the workload on another machine.
+All measured calls were below the 150 ms extractor target. Import/startup time, whole-file browser decoding, HTTP parsing/serialization and PDF generation are separate costs. Run `python -m pytest tests/forensics/test_performance.py tests/forensics/test_environmental.py -s -q` to reproduce the workload on another machine.
 
 ## Integrity and evidence checks
 

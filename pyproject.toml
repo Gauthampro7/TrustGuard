@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "performance: bounded warmed extractor latency checks; run separately on CI",
+]

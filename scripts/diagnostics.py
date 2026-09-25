@@ -60,7 +60,9 @@ def check_dependencies():
         ("fastapi", "FastAPI Web Framework"),
         ("uvicorn", "ASGI Server Engine"),
         ("numpy", "Vector & Signal Mathematics"),
-        ("scipy", "Acoustic & Spectral DSP"),
+        ("reportlab", "PDF Audit Rendering"),
+        ("cryptography", "Ed25519 Record Integrity"),
+        ("httpx", "Local API Test Transport"),
         ("pydantic", "Schema Validation"),
         ("pytest", "Forensic Test Suite"),
     ]
@@ -131,8 +133,8 @@ def test_canary_tripwires():
         
         print(f"  {GREEN}{OK_SYM}{RESET} Canary Token Generation: OK ({token[:16]}...)")
         print(f"  {GREEN}{OK_SYM}{RESET} Invisible Unicode Marker Injection: OK ({len(res['marker'])} chars)")
-        print(f"  {GREEN}{OK_SYM}{RESET} Exact Token Detection Match: OK (Accuracy: 100%)")
-        print(f"  {GREEN}{OK_SYM}{RESET} Negative Control / Clean Text: OK (Zero false positives)")
+        print(f"  {GREEN}{OK_SYM}{RESET} Exact Token Detection Match: positive control passed")
+        print(f"  {GREEN}{OK_SYM}{RESET} Negative Control / Clean Text: negative control passed")
         return True
     except Exception as e:
         print(f"  {RED}{FAIL_SYM}{RESET} Canary tripwire test failed: {e}")

@@ -1,0 +1,439 @@
+{
+  "ForensicResult": {
+    "fields": [
+      {
+        "name": "name",
+        "required": true,
+        "type": "str"
+      },
+      {
+        "name": "score",
+        "required": true,
+        "type": "float"
+      },
+      {
+        "name": "uncertainty",
+        "required": true,
+        "type": "float"
+      },
+      {
+        "defaultFactory": "list",
+        "name": "findings",
+        "required": false,
+        "type": "list[str]"
+      },
+      {
+        "defaultFactory": "dict",
+        "name": "metrics",
+        "required": false,
+        "type": "dict[str, Any]"
+      },
+      {
+        "default": 0.0,
+        "name": "elapsed_ms",
+        "required": false,
+        "type": "float"
+      }
+    ],
+    "frozen": true
+  },
+  "modules": {
+    "audio_vocoder": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "audio_samples",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": 16000,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "sample_rate",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(audio_samples, sample_rate=16000)"
+        }
+      },
+      "importPath": "backend.app.forensics.audio_vocoder",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "briefDigitalSilenceGaps": "integer",
+          "phaseDiscontinuityRate": "number"
+        }
+      }
+    },
+    "canary_tripwire": {
+      "functions": {
+        "detect": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "text",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "registered_token",
+              "required": true
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": {
+            "explanation": "string",
+            "occurrenceCount": "integer",
+            "tokenId": "string",
+            "tripwireTriggered": "boolean"
+          },
+          "signature": "(text, registered_token)"
+        },
+        "generate": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "text",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "token",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": {
+            "marker": "string",
+            "text": "string",
+            "token": "string",
+            "tokenId": "string",
+            "warning": "string"
+          },
+          "signature": "(text, token=None)"
+        }
+      },
+      "importPath": "backend.app.forensics.canary_tripwire"
+    },
+    "cross_modal_sync": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "audio_envelope",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "mouth_aperture",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": 25,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "sample_rate",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(audio_envelope, mouth_aperture, sample_rate=25)"
+        }
+      },
+      "importPath": "backend.app.forensics.cross_modal_sync",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "correlation": "number",
+          "lagMs": "number"
+        }
+      }
+    },
+    "environmental_acoustic": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "impulse_response",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": 16000,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "sample_rate",
+              "required": false
+            },
+            {
+              "annotation": null,
+              "default": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "claimed_environment",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(impulse_response, sample_rate=16000, claimed_environment=None)"
+        }
+      },
+      "importPath": "backend.app.forensics.environmental_acoustic",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "matchScore": "number|null",
+          "profile": "string",
+          "rt60Sec": "number"
+        }
+      }
+    },
+    "homoglyph_hunter": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "text",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "reference",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(text, reference=None)"
+        },
+        "skeleton": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "text",
+              "required": true
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "string",
+          "signature": "(text)"
+        }
+      },
+      "importPath": "backend.app.forensics.homoglyph_hunter",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "confusables": "array<{codePoint:string,looksLike:string}>"
+        }
+      }
+    },
+    "perceptual_hash": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "image_pixels",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "reference_pixels",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(image_pixels, reference_pixels=None)"
+        },
+        "hamming_distance": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "left",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "right",
+              "required": true
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "integer in [0,64]",
+          "signature": "(left, right)"
+        },
+        "hash_image": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "image_pixels",
+              "required": true
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "16-character hexadecimal string",
+          "signature": "(image_pixels)"
+        }
+      },
+      "importPath": "backend.app.forensics.perceptual_hash",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "hammingDistance": "integer",
+          "matched": "boolean"
+        }
+      }
+    },
+    "rppg": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "rgb_trace",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": 25,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "sample_rate",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(rgb_trace, sample_rate=25)"
+        }
+      },
+      "importPath": "backend.app.forensics.rppg",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "pulseFrequencyHz": "number",
+          "pulseRegularity": "number"
+        }
+      }
+    },
+    "spatial_fft": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "image_pixels",
+              "required": true
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(image_pixels)"
+        }
+      },
+      "importPath": "backend.app.forensics.spatial_fft",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "highFrequencyPowerRatio": "number",
+          "spectralPeakRatio": "number"
+        }
+      }
+    },
+    "stylometry_drift": {
+      "functions": {
+        "analyze": {
+          "parameters": [
+            {
+              "annotation": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "text",
+              "required": true
+            },
+            {
+              "annotation": null,
+              "default": null,
+              "kind": "POSITIONAL_OR_KEYWORD",
+              "name": "baseline_text",
+              "required": false
+            }
+          ],
+          "returnAnnotation": null,
+          "returns": "ForensicResult",
+          "signature": "(text, baseline_text=None)"
+        }
+      },
+      "importPath": "backend.app.forensics.stylometry_drift",
+      "metrics": {
+        "additionalMetricsAllowed": true,
+        "alwaysRequired": {
+          "evaluated": "boolean"
+        },
+        "requiredWhenEvaluated": {
+          "urgencyScore": "number",
+          "yulesK": "number"
+        }
+      }
+    }
+  },
+  "protocolVersion": "1.0.0",
+  "semantics": {
+    "compatibility": "Freeze callable signatures, ordered dataclass fields and consumed metric keys; permit implementation and score changes.",
+    "elapsed_ms": "Finite nonnegative extractor duration; runtime values are not frozen regression targets.",
+    "findings": "Human-readable statements; wording and numeric measurements may evolve without an ABI break.",
+    "inputOwnership": "Callers supply bounded in-memory samples. No external fetching or raw biometric persistence.",
+    "metrics.evaluated": "Mandatory boolean on every analyze output. False means abstention and cannot count as an evaluated modality.",
+    "requiredMetricsMaintenance": "Manual core-consumer list in scripts/export_contracts.py; coordinate changes with Gautham.",
+    "score": "Finite anomaly index in [0,1]; never an authenticity probability or proof.",
+    "uncertainty": "Finite evidence limitation index in [0,1]; larger means less reliable evidence."
+  }
+}

@@ -96,6 +96,7 @@ def test_invalid_environmental_inputs_rejected(call):
     ("environmental_acoustic", lambda: environmental_acoustic.analyze(_impulse(duration=6).tolist())),
     ("rppg", lambda: rppg.analyze(_rgb(duration=60).tolist())),
 ])
+@pytest.mark.performance
 def test_optional_measurements_are_json_safe_and_bounded_under_150ms(name, call):
     call()
     elapsed = []

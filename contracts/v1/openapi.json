@@ -1,0 +1,2164 @@
+{
+  "components": {
+    "schemas": {
+      "AdversarialDialectic": {
+        "description": "Dual-Agent Dialectic: Adversarial debate synthesizing prosecution and defense arguments.",
+        "properties": {
+          "defenseMitigation": {
+            "description": "Forensic defense advocate highlighting natural compression/sensor noise",
+            "title": "Defensemitigation",
+            "type": "string"
+          },
+          "judicialSynthesis": {
+            "description": "Balanced judicial ruling justifying the calibrated Trust Vector",
+            "title": "Judicialsynthesis",
+            "type": "string"
+          },
+          "prosecutionArgument": {
+            "description": "Forensic prosecutor argument detailing anomalies and red flags",
+            "title": "Prosecutionargument",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prosecutionArgument",
+          "defenseMitigation",
+          "judicialSynthesis"
+        ],
+        "title": "AdversarialDialectic",
+        "type": "object"
+      },
+      "AffectedSpan": {
+        "properties": {
+          "endSec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endsec"
+          },
+          "startSec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Startsec"
+          }
+        },
+        "title": "AffectedSpan",
+        "type": "object"
+      },
+      "AssessmentTier": {
+        "enum": [
+          "BENIGN_AUTHENTIC",
+          "LOW_RISK_VERIFIED",
+          "UNCERTAIN_COMPRESSION_NOISE",
+          "SUSPICIOUS_ANOMALY",
+          "HIGH_IMPERSONATION_RISK"
+        ],
+        "title": "AssessmentTier",
+        "type": "string"
+      },
+      "AuditCertificateResponse": {
+        "properties": {
+          "auditCertificateId": {
+            "title": "Auditcertificateid",
+            "type": "string"
+          },
+          "certificateSha256": {
+            "title": "Certificatesha256",
+            "type": "string"
+          },
+          "downloadPdfUrl": {
+            "title": "Downloadpdfurl",
+            "type": "string"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "verifyUrl": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verifyurl"
+          }
+        },
+        "required": [
+          "auditCertificateId",
+          "timestamp",
+          "certificateSha256",
+          "downloadPdfUrl"
+        ],
+        "title": "AuditCertificateResponse",
+        "type": "object"
+      },
+      "AuditSignRequest": {
+        "properties": {
+          "analystId": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Analystid",
+            "type": "string"
+          },
+          "analystNotes": {
+            "maxLength": 3000,
+            "minLength": 10,
+            "title": "Analystnotes",
+            "type": "string"
+          },
+          "completedSteps": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Completedsteps",
+            "type": "array"
+          },
+          "finalDecision": {
+            "title": "Finaldecision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "analystId",
+          "analystNotes",
+          "finalDecision",
+          "completedSteps"
+        ],
+        "title": "AuditSignRequest",
+        "type": "object"
+      },
+      "CanaryRegistrationResponse": {
+        "properties": {
+          "markedText": {
+            "title": "Markedtext",
+            "type": "string"
+          },
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "markedText",
+          "token",
+          "notice"
+        ],
+        "title": "CanaryRegistrationResponse",
+        "type": "object"
+      },
+      "CanaryRequest": {
+        "properties": {
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "CanaryRequest",
+        "type": "object"
+      },
+      "CanaryTripwireAlert": {
+        "description": "Active deception detection via honeypot tokens and zero-width markers.",
+        "properties": {
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "tripwireTriggered": {
+            "default": false,
+            "title": "Tripwiretriggered",
+            "type": "boolean"
+          },
+          "tripwireType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tripwiretype"
+          }
+        },
+        "title": "CanaryTripwireAlert",
+        "type": "object"
+      },
+      "CertificateVerificationResponse": {
+        "properties": {
+          "algorithm": {
+            "title": "Algorithm",
+            "type": "string"
+          },
+          "certificateSha256": {
+            "title": "Certificatesha256",
+            "type": "string"
+          },
+          "manifestSignature": {
+            "title": "Manifestsignature",
+            "type": "string"
+          },
+          "notice": {
+            "title": "Notice",
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/SignedAuditPayload"
+          },
+          "payloadSha256": {
+            "title": "Payloadsha256",
+            "type": "string"
+          },
+          "publicKey": {
+            "title": "Publickey",
+            "type": "string"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          },
+          "valid": {
+            "title": "Valid",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid",
+          "algorithm",
+          "publicKey",
+          "payloadSha256",
+          "certificateSha256",
+          "signature",
+          "payload",
+          "manifestSignature",
+          "notice"
+        ],
+        "title": "CertificateVerificationResponse",
+        "type": "object"
+      },
+      "ClaimedIdentity": {
+        "properties": {
+          "canonicalUserId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonicaluserid"
+          },
+          "claimedAffiliation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimedaffiliation"
+          },
+          "claimedRole": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimedrole"
+          },
+          "entityName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entityname"
+          },
+          "referenceHandles": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReferenceHandles"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ClaimedIdentity",
+        "type": "object"
+      },
+      "EnvironmentalForensics": {
+        "description": "Acoustic and physiological environmental micro-signals.",
+        "properties": {
+          "ambientAcousticProfile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "e.g. Studio Dead, Open Office, Reverb Hallway",
+            "title": "Ambientacousticprofile"
+          },
+          "measurementNotes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurementnotes"
+          },
+          "pulseFrequencyHz": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pulsefrequencyhz"
+          },
+          "reverberationMatchScore": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "RT60 acoustic space consistency",
+            "title": "Reverberationmatchscore"
+          },
+          "rppgPulseConfidence": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Legacy field name: chrominance periodicity, NOT biological liveness probability",
+            "title": "Rppgpulseconfidence"
+          },
+          "rt60Sec": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rt60Sec"
+          }
+        },
+        "title": "EnvironmentalForensics",
+        "type": "object"
+      },
+      "EvidenceItem": {
+        "properties": {
+          "evidenceId": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Evidenceid",
+            "type": "string"
+          },
+          "mediaUri": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mediauri"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "modality": {
+            "$ref": "#/components/schemas/ModalityType"
+          },
+          "samples": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceSamples"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "textContent": {
+            "anyOf": [
+              {
+                "maxLength": 20000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Textcontent"
+          }
+        },
+        "required": [
+          "evidenceId",
+          "modality"
+        ],
+        "title": "EvidenceItem",
+        "type": "object"
+      },
+      "EvidenceMetadata": {
+        "properties": {
+          "c2paPresent": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": false,
+            "title": "C2Papresent"
+          },
+          "captureTimestamp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capturetimestamp"
+          },
+          "durationSec": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationsec"
+          },
+          "extraMetadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extrametadata"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          }
+        },
+        "title": "EvidenceMetadata",
+        "type": "object"
+      },
+      "EvidencePolarity": {
+        "enum": [
+          "red_flag",
+          "green_flag",
+          "neutral_uncertain"
+        ],
+        "title": "EvidencePolarity",
+        "type": "string"
+      },
+      "EvidenceSamples": {
+        "additionalProperties": false,
+        "description": "Bounded, transient samples. Never persisted or fetched from a media URI.",
+        "properties": {
+          "audioEnvelope": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "maxItems": 1500,
+                "minItems": 25,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audioenvelope"
+          },
+          "audioSamples": {
+            "anyOf": [
+              {
+                "items": {
+                  "maximum": 1.0,
+                  "minimum": -1.0,
+                  "type": "number"
+                },
+                "maxItems": 96000,
+                "minItems": 800,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Audiosamples"
+          },
+          "envelopeRate": {
+            "default": 25,
+            "maximum": 100.0,
+            "minimum": 5.0,
+            "title": "Enveloperate",
+            "type": "number"
+          },
+          "imagePixels": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "maximum": 255.0,
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  "maxItems": 256,
+                  "minItems": 16,
+                  "type": "array"
+                },
+                "maxItems": 256,
+                "minItems": 16,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imagepixels"
+          },
+          "mouthAperture": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "maxItems": 1500,
+                "minItems": 25,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mouthaperture"
+          },
+          "referenceImagePixels": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "maximum": 255.0,
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  "maxItems": 256,
+                  "minItems": 16,
+                  "type": "array"
+                },
+                "maxItems": 256,
+                "minItems": 16,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referenceimagepixels"
+          },
+          "rgbTrace": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "maximum": 255.0,
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  "maxItems": 3,
+                  "minItems": 3,
+                  "type": "array"
+                },
+                "maxItems": 1500,
+                "minItems": 100,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rgbtrace"
+          },
+          "roomImpulseResponse": {
+            "anyOf": [
+              {
+                "items": {
+                  "maximum": 1.0,
+                  "minimum": -1.0,
+                  "type": "number"
+                },
+                "maxItems": 96000,
+                "minItems": 1024,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roomimpulseresponse"
+          },
+          "sampleRate": {
+            "default": 16000,
+            "maximum": 48000.0,
+            "minimum": 8000.0,
+            "title": "Samplerate",
+            "type": "integer"
+          }
+        },
+        "title": "EvidenceSamples",
+        "type": "object"
+      },
+      "ExtractorCapability": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "modality": {
+            "title": "Modality",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "modality",
+          "description"
+        ],
+        "title": "ExtractorCapability",
+        "type": "object"
+      },
+      "ForensicCapabilitiesResponse": {
+        "properties": {
+          "activeRegisteredCanaries": {
+            "title": "Activeregisteredcanaries",
+            "type": "integer"
+          },
+          "calibration": {
+            "title": "Calibration",
+            "type": "string"
+          },
+          "engine": {
+            "title": "Engine",
+            "type": "string"
+          },
+          "extractors": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractorCapability"
+            },
+            "title": "Extractors",
+            "type": "array"
+          },
+          "gpuRequired": {
+            "title": "Gpurequired",
+            "type": "boolean"
+          },
+          "latencyTargetMs": {
+            "title": "Latencytargetms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "engine",
+          "latencyTargetMs",
+          "gpuRequired",
+          "extractors",
+          "activeRegisteredCanaries",
+          "calibration"
+        ],
+        "title": "ForensicCapabilitiesResponse",
+        "type": "object"
+      },
+      "ForensicLayer": {
+        "enum": [
+          "media_synthetic",
+          "stylometry_behavior",
+          "cross_modal",
+          "context_grounding",
+          "identity_consistency"
+        ],
+        "title": "ForensicLayer",
+        "type": "string"
+      },
+      "HTTPErrorResponse": {
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ValidationIssue"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "HTTPErrorResponse",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "calibration": {
+            "title": "Calibration",
+            "type": "string"
+          },
+          "rawMediaStorage": {
+            "title": "Rawmediastorage",
+            "type": "boolean"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          },
+          "sessionPublicKey": {
+            "title": "Sessionpublickey",
+            "type": "string"
+          },
+          "standard": {
+            "title": "Standard",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service",
+          "standard",
+          "timestamp",
+          "rawMediaStorage",
+          "calibration",
+          "sessionPublicKey"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "LedgerEvidenceItem": {
+        "properties": {
+          "affectedSpan": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AffectedSpan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "confidence": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "type": "number"
+          },
+          "finding": {
+            "title": "Finding",
+            "type": "string"
+          },
+          "layer": {
+            "$ref": "#/components/schemas/ForensicLayer"
+          },
+          "modality": {
+            "title": "Modality",
+            "type": "string"
+          },
+          "polarity": {
+            "$ref": "#/components/schemas/EvidencePolarity"
+          },
+          "signalId": {
+            "title": "Signalid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signalId",
+          "layer",
+          "modality",
+          "polarity",
+          "confidence",
+          "finding"
+        ],
+        "title": "LedgerEvidenceItem",
+        "type": "object"
+      },
+      "ModalityType": {
+        "enum": [
+          "video",
+          "audio",
+          "image",
+          "text",
+          "document",
+          "url"
+        ],
+        "title": "ModalityType",
+        "type": "string"
+      },
+      "PlaybookStatus": {
+        "enum": [
+          "pending_analyst",
+          "confirmed_fraud",
+          "confirmed_authentic"
+        ],
+        "title": "PlaybookStatus",
+        "type": "string"
+      },
+      "PlaybookStep": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "instruction": {
+            "title": "Instruction",
+            "type": "string"
+          },
+          "resourceUri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resourceuri"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PlaybookStatus",
+            "default": "pending_analyst"
+          },
+          "step": {
+            "title": "Step",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "step",
+          "action",
+          "instruction"
+        ],
+        "title": "PlaybookStep",
+        "type": "object"
+      },
+      "ProfileEvaluationRequest": {
+        "properties": {
+          "accountCreatedDate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accountcreateddate"
+          },
+          "avatarPixels": {
+            "anyOf": [
+              {
+                "items": {
+                  "items": {
+                    "maximum": 255.0,
+                    "minimum": 0.0,
+                    "type": "number"
+                  },
+                  "maxItems": 256,
+                  "minItems": 16,
+                  "type": "array"
+                },
+                "maxItems": 256,
+                "minItems": 16,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarpixels"
+          },
+          "avatarUrl": {
+            "anyOf": [
+              {
+                "maxLength": 2048,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatarurl"
+          },
+          "bioText": {
+            "anyOf": [
+              {
+                "maxLength": 20000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "",
+            "title": "Biotext"
+          },
+          "displayName": {
+            "maxLength": 300,
+            "title": "Displayname",
+            "type": "string"
+          },
+          "handle": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Handle",
+            "type": "string"
+          },
+          "platform": {
+            "description": "Platform name e.g. twitter, instagram, linkedin",
+            "maxLength": 32,
+            "title": "Platform",
+            "type": "string"
+          },
+          "referenceHandle": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Referencehandle"
+          }
+        },
+        "required": [
+          "platform",
+          "handle",
+          "displayName"
+        ],
+        "title": "ProfileEvaluationRequest",
+        "type": "object"
+      },
+      "ProfileEvaluationResponse": {
+        "properties": {
+          "adversarialDialectic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdversarialDialectic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "badgeStatus": {
+            "description": "e.g. meter-green, meter-amber, meter-red",
+            "title": "Badgestatus",
+            "type": "string"
+          },
+          "calibratedTrustVector": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TrustVector"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "continuousAuthenticityScore": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Continuousauthenticityscore",
+            "type": "number"
+          },
+          "evidenceLedger": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEvidenceItem"
+            },
+            "title": "Evidenceledger",
+            "type": "array"
+          },
+          "inspectionComplete": {
+            "default": false,
+            "title": "Inspectioncomplete",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "modalitiesEvaluated": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Modalitiesevaluated",
+            "type": "array"
+          },
+          "noScoreIsProofNotice": {
+            "default": "Diagnostic consistency index, not an authenticity probability. No score is proof.",
+            "title": "Noscoreisproofnotice",
+            "type": "string"
+          },
+          "signals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Signals",
+            "type": "array"
+          },
+          "verificationPlaybook": {
+            "items": {
+              "$ref": "#/components/schemas/PlaybookStep"
+            },
+            "title": "Verificationplaybook",
+            "type": "array"
+          }
+        },
+        "required": [
+          "continuousAuthenticityScore",
+          "badgeStatus",
+          "label",
+          "signals"
+        ],
+        "title": "ProfileEvaluationResponse",
+        "type": "object"
+      },
+      "ReferenceHandles": {
+        "properties": {
+          "instagram": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instagram"
+          },
+          "linkedin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Linkedin"
+          },
+          "x_twitter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "X Twitter"
+          },
+          "youtube": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Youtube"
+          }
+        },
+        "title": "ReferenceHandles",
+        "type": "object"
+      },
+      "ScenarioDetailResponse": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "request": {
+            "$ref": "#/components/schemas/TrustGuardInspectionRequest"
+          },
+          "scenarioId": {
+            "title": "Scenarioid",
+            "type": "string"
+          },
+          "simulation": {
+            "default": true,
+            "title": "Simulation",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenarioId",
+          "title",
+          "description",
+          "request"
+        ],
+        "title": "ScenarioDetailResponse",
+        "type": "object"
+      },
+      "ScenarioSummary": {
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "scenarioId": {
+            "title": "Scenarioid",
+            "type": "string"
+          },
+          "simulation": {
+            "default": true,
+            "title": "Simulation",
+            "type": "boolean"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scenarioId",
+          "title",
+          "description"
+        ],
+        "title": "ScenarioSummary",
+        "type": "object"
+      },
+      "SignedAuditPayload": {
+        "properties": {
+          "analystStatement": {
+            "$ref": "#/components/schemas/AuditSignRequest"
+          },
+          "certificateId": {
+            "title": "Certificateid",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "timestamp": {
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/TrustGuardInspectionVerdict"
+          }
+        },
+        "required": [
+          "certificateId",
+          "timestamp",
+          "verdict",
+          "analystStatement",
+          "scope"
+        ],
+        "title": "SignedAuditPayload",
+        "type": "object"
+      },
+      "SourceChannel": {
+        "enum": [
+          "web_portal",
+          "browser_extension",
+          "headless_api",
+          "citizen_tipline"
+        ],
+        "title": "SourceChannel",
+        "type": "string"
+      },
+      "TrustGuardInspectionRequest": {
+        "properties": {
+          "claimedIdentity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ClaimedIdentity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidenceItems": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceItem"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Evidenceitems",
+            "type": "array"
+          },
+          "requestId": {
+            "description": "Unique inspection request identifier",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Requestid",
+            "type": "string"
+          },
+          "sourceChannel": {
+            "$ref": "#/components/schemas/SourceChannel"
+          },
+          "timestamp": {
+            "description": "ISO 8601 timestamp of inspection request",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requestId",
+          "timestamp",
+          "sourceChannel",
+          "evidenceItems"
+        ],
+        "title": "TrustGuardInspectionRequest",
+        "type": "object"
+      },
+      "TrustGuardInspectionVerdict": {
+        "properties": {
+          "adversarialDialectic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AdversarialDialectic"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assessmentTier": {
+            "$ref": "#/components/schemas/AssessmentTier"
+          },
+          "calibratedTrustVector": {
+            "$ref": "#/components/schemas/TrustVector"
+          },
+          "environmentalForensics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnvironmentalForensics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evaluatedAt": {
+            "title": "Evaluatedat",
+            "type": "string"
+          },
+          "evidenceLedger": {
+            "items": {
+              "$ref": "#/components/schemas/LedgerEvidenceItem"
+            },
+            "title": "Evidenceledger",
+            "type": "array"
+          },
+          "innovationMetadata": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Innovationmetadata"
+          },
+          "requestId": {
+            "title": "Requestid",
+            "type": "string"
+          },
+          "tripwireStatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanaryTripwireAlert"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verdictId": {
+            "title": "Verdictid",
+            "type": "string"
+          },
+          "verdictSummary": {
+            "$ref": "#/components/schemas/VerdictSummary"
+          },
+          "verificationPlaybook": {
+            "items": {
+              "$ref": "#/components/schemas/PlaybookStep"
+            },
+            "title": "Verificationplaybook",
+            "type": "array"
+          }
+        },
+        "required": [
+          "verdictId",
+          "requestId",
+          "evaluatedAt",
+          "assessmentTier",
+          "calibratedTrustVector",
+          "verdictSummary",
+          "evidenceLedger",
+          "verificationPlaybook"
+        ],
+        "title": "TrustGuardInspectionVerdict",
+        "type": "object"
+      },
+      "TrustVector": {
+        "properties": {
+          "contextualAnomalyScore": {
+            "description": "Contextual/historical anomaly score [0,1]",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Contextualanomalyscore",
+            "type": "number"
+          },
+          "crossModalDiscordanceScore": {
+            "description": "Cross-modal discordance index [0,1]",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Crossmodaldiscordancescore",
+            "type": "number"
+          },
+          "epistemicUncertainty": {
+            "description": "Quality degradation/uncertainty metric [0,1]",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Epistemicuncertainty",
+            "type": "number"
+          },
+          "identityMismatchScore": {
+            "description": "Impersonation drift vs baseline [0,1]",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Identitymismatchscore",
+            "type": "number"
+          },
+          "mediaSynthesisScore": {
+            "description": "Physical/spectral synthesis score [0,1]",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Mediasynthesisscore",
+            "type": "number"
+          }
+        },
+        "required": [
+          "mediaSynthesisScore",
+          "crossModalDiscordanceScore",
+          "identityMismatchScore",
+          "contextualAnomalyScore",
+          "epistemicUncertainty"
+        ],
+        "title": "TrustVector",
+        "type": "object"
+      },
+      "ValidationIssue": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Loc",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Msg",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationIssue",
+        "type": "object"
+      },
+      "VerdictSummary": {
+        "properties": {
+          "coreAnomaly": {
+            "title": "Coreanomaly",
+            "type": "string"
+          },
+          "headline": {
+            "title": "Headline",
+            "type": "string"
+          },
+          "noScoreIsProofNotice": {
+            "default": "Under TrustGuard core architecture, no single score constitutes legal or definitive proof. Review the calibrated 5D Trust Vector and complete the Human Verification Playbook before taking adverse action.",
+            "title": "Noscoreisproofnotice",
+            "type": "string"
+          }
+        },
+        "required": [
+          "headline",
+          "coreAnomaly"
+        ],
+        "title": "VerdictSummary",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Multi-Modal AI for Digital Trust · Track 01 PS-02 Core Engine",
+    "title": "TrustGuard",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Root",
+        "tags": [
+          "Root"
+        ]
+      }
+    },
+    "/api/v1/canaries": {
+      "post": {
+        "operationId": "register_canary_api_v1_canaries_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CanaryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanaryRegistrationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Register Canary",
+        "tags": [
+          "Canary"
+        ]
+      }
+    },
+    "/api/v1/cases/{case_id}/sign-audit": {
+      "post": {
+        "operationId": "sign_audit_api_v1_cases__case_id__sign_audit_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "case_id",
+            "required": true,
+            "schema": {
+              "title": "Case Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuditSignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditCertificateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Sign Audit",
+        "tags": [
+          "Human Verification"
+        ]
+      }
+    },
+    "/api/v1/certificates/{certificate_id}.pdf": {
+      "get": {
+        "operationId": "download_certificate_api_v1_certificates__certificate_id__pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "certificate_id",
+            "required": true,
+            "schema": {
+              "title": "Certificate Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Signed incident certificate PDF"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Download Certificate",
+        "tags": [
+          "Human Verification"
+        ]
+      }
+    },
+    "/api/v1/certificates/{certificate_id}/verify": {
+      "get": {
+        "operationId": "verify_certificate_api_v1_certificates__certificate_id__verify_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "certificate_id",
+            "required": true,
+            "schema": {
+              "title": "Certificate Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertificateVerificationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Verify Certificate",
+        "tags": [
+          "Human Verification"
+        ]
+      }
+    },
+    "/api/v1/extension/evaluate-profile": {
+      "post": {
+        "operationId": "evaluate_profile_api_v1_extension_evaluate_profile_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileEvaluationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileEvaluationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Evaluate Profile",
+        "tags": [
+          "Browser Extension"
+        ]
+      }
+    },
+    "/api/v1/forensics/capabilities": {
+      "get": {
+        "operationId": "forensic_capabilities_api_v1_forensics_capabilities_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForensicCapabilitiesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Forensic Capabilities",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Health Check",
+        "tags": [
+          "System"
+        ]
+      }
+    },
+    "/api/v1/inspect": {
+      "post": {
+        "operationId": "inspect_evidence_api_v1_inspect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrustGuardInspectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustGuardInspectionVerdict"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Inspect Evidence",
+        "tags": [
+          "Inspection"
+        ]
+      }
+    },
+    "/api/v1/scenarios": {
+      "get": {
+        "operationId": "list_scenarios_api_v1_scenarios_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioSummary"
+                  },
+                  "title": "Response List Scenarios Api V1 Scenarios Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "List Scenarios",
+        "tags": [
+          "Scenarios"
+        ]
+      }
+    },
+    "/api/v1/scenarios/{scenario_id}": {
+      "get": {
+        "operationId": "get_scenario_api_v1_scenarios__scenario_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "scenario_id",
+            "required": true,
+            "schema": {
+              "title": "Scenario Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScenarioDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Requested scenario, case or certificate was not found."
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "The request exceeds the transient body-size limit."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorResponse"
+                }
+              }
+            },
+            "description": "Validation failed; detail is a message or a list of sanitized validation issues."
+          }
+        },
+        "summary": "Get Scenario",
+        "tags": [
+          "Scenarios"
+        ]
+      }
+    }
+  }
+}

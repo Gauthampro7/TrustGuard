@@ -1,0 +1,100 @@
+{
+  "adversarialDialectic": {
+    "defenseMitigation": "Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=0.0; urgencyScore=0.0. Feature reliability is not a probability of authenticity. No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity. No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity.",
+    "judicialSynthesis": "Rule-based synthesis, not an independent AI adjudication. Uncertainty is 0.89; each suspicion dimension is bounded at 0.26. Unmeasured dimensions: crossModalDiscordanceScore. These are heuristic indices, not calibrated probabilities or proof of identity. Complete the independent verification playbook.",
+    "prosecutionArgument": "No measured feature crossed an anomaly threshold. This does not establish authenticity."
+  },
+  "badgeStatus": "meter-amber",
+  "calibratedTrustVector": {
+    "contextualAnomalyScore": 0.0,
+    "crossModalDiscordanceScore": 0.0,
+    "epistemicUncertainty": 0.8875,
+    "identityMismatchScore": 0.0,
+    "mediaSynthesisScore": 0.2625
+  },
+  "continuousAuthenticityScore": 0.1125,
+  "evidenceLedger": [
+    {
+      "affectedSpan": null,
+      "confidence": 0.1125,
+      "finding": "Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=0.0; urgencyScore=0.0. Feature reliability is not a probability of authenticity.",
+      "layer": "stylometry_behavior",
+      "modality": "text",
+      "polarity": "neutral_uncertain",
+      "signalId": "profile-text:stylometry_drift"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.65,
+      "finding": "No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity.",
+      "layer": "identity_consistency",
+      "modality": "text",
+      "polarity": "green_flag",
+      "signalId": "profile-text:homoglyph_hunter"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.65,
+      "finding": "No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity.",
+      "layer": "identity_consistency",
+      "modality": "text",
+      "polarity": "green_flag",
+      "signalId": "profile-text-display-name:homoglyph_hunter"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 0.6,
+      "finding": "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.102162; spectralPeakRatio=5.599401. Feature reliability is not a probability of authenticity.",
+      "layer": "media_synthetic",
+      "modality": "visual",
+      "polarity": "green_flag",
+      "signalId": "profile-avatar:spatial_fft"
+    },
+    {
+      "affectedSpan": null,
+      "confidence": 1.0,
+      "finding": "Unmeasured dimensions have index zero, not verified authenticity: crossModalDiscordanceScore.",
+      "layer": "context_grounding",
+      "modality": "coverage",
+      "polarity": "neutral_uncertain",
+      "signalId": "coverage:missing"
+    }
+  ],
+  "inspectionComplete": true,
+  "label": "UNVERIFIED_PROFILE",
+  "modalitiesEvaluated": [
+    "text",
+    "visual"
+  ],
+  "noScoreIsProofNotice": "Diagnostic consistency index, not an authenticity probability. No score is proof.",
+  "signals": [
+    "Urgency and coercion vocabulary were measured as context, not authorship evidence. Writing style comparison requires an adequate, language-matched baseline; edits and topic shifts can cause drift. Measurements: yulesK=0.0; urgencyScore=0.0. Feature reliability is not a probability of authenticity.",
+    "No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity.",
+    "No mixed-script lookalike token or reference collision was established. A lookalike spelling is a review cue; multilingual names and legitimate aliases require independent identity verification. Feature reliability is not a probability of authenticity.",
+    "No strong periodic spatial anomaly appears in this frame. Textures, resampling and compression can produce the same spectrum; this heuristic does not identify AI generation. Measurements: highFrequencyPowerRatio=0.102162; spectralPeakRatio=5.599401. Feature reliability is not a probability of authenticity.",
+    "Unmeasured dimensions have index zero, not verified authenticity: crossModalDiscordanceScore."
+  ],
+  "verificationPlaybook": [
+    {
+      "action": "Contact a known independent channel",
+      "instruction": "Call a previously known number or internal directory PBX. Do not use contact details supplied by the suspicious account.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 1
+    },
+    {
+      "action": "Check the original source",
+      "instruction": "Request the original recording and compare the full context, account spelling and consented reference archive. Matching avatars or pulse traces do not prove identity.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 2
+    },
+    {
+      "action": "Confirm the requested action",
+      "instruction": "Verify payment details or access requests with a second authorized person through an established channel. Record what was checked before drawing a conclusion.",
+      "resourceUri": null,
+      "status": "pending_analyst",
+      "step": 3
+    }
+  ]
+}

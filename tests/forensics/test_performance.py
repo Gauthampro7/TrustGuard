@@ -5,6 +5,8 @@ from time import perf_counter
 import numpy as np
 import pytest
 
+pytestmark = pytest.mark.performance
+
 from backend.app.forensics import (
     audio_vocoder, canary_tripwire, cross_modal_sync, homoglyph_hunter,
     perceptual_hash, spatial_fft, stylometry_drift,

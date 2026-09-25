@@ -1,0 +1,13 @@
+{
+  "name": "trustguard-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproducible browser checks for the TrustGuard workspace",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "check:dashboard": "node --check frontend/app.js",
+    "test:extension": "node --test extension/tests/*.test.cjs",
+    "test:browser": "node frontend/tests/browser-smoke.cjs"
+  },
+  "devDependencies": {"playwright": "1.63.0"}
+}

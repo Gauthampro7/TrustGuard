@@ -1,0 +1,6 @@
+{
+  "bioText": "Synthetic reference profile for protocol tests. No real person is represented. Verify identity through an independent known channel.",
+  "displayName": "Synthetic Contract Example",
+  "handle": "contract_example",
+  "platform": "twitter"
+}
