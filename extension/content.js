@@ -25,6 +25,9 @@
   function updateRoute() {
     if (route === routeKey()) return false;
     route = routeKey();
+    // A reference handle describes the profile it was entered on; comparing every
+    // later profile against it marked unrelated people as mismatches.
+    referenceHandle = "";
     generation += 1;
     lastKey = "";
     cached = null;

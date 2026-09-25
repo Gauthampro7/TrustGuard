@@ -1,7 +1,7 @@
 # PROFILE-1: stop false low authenticity scores in the browser extension
 
 Owner: akarsh (reporter; the fixes belong to Gautham and Achumit)
-Status: proposed
+Status: accepted
 Current contract: v1
 Related module task: ML-1 follow-up, found while rehearsing the extension demo
 
@@ -52,4 +52,8 @@ No schema, endpoint or contract change. Three patches, one per owner, each `git 
 
 ## Integration record — Gautham fills on acceptance
 
-Decision, contract version, integration commit, migration notes and follow-up tasks:
+- **Decision**: Formally accepted. The three patches (`PROFILE-1-extension.patch`, `PROFILE-1-profiles.patch`, and `PROFILE-1-core.patch`) are activated on main. This removes false alarms on corporate/polished bios and sticky reference handles while preserving strict detection and low scores for actual Cyrillic/typosquat lookalikes.
+- **Contract Version**: v1 (backward-compatible; 0 schema, endpoint, or contract changes).
+- **Integration Commit**: Combined commit on `main`.
+- **Validation**: 49 extension tests passed; 85 core/contract tests and 347 full python suite passed; 0 contract drift against v1.
+- **Follow-up Tasks**: None required; all three fixes are self-contained and active across extension, core, and profiles endpoints.
