@@ -1,0 +1,14 @@
+diff --git a/extension/content.js b/extension/content.js
+index 7d2a619..232ef5b 100644
+--- a/extension/content.js
++++ b/extension/content.js
+@@ -25,6 +25,9 @@
+   function updateRoute() {
+     if (route === routeKey()) return false;
+     route = routeKey();
++    // A reference handle describes the profile it was entered on; comparing every
++    // later profile against it marked unrelated people as mismatches.
++    referenceHandle = "";
+     generation += 1;
+     lastKey = "";
+     cached = null;

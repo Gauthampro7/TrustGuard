@@ -1,0 +1,25 @@
+diff --git a/backend/app/api/endpoints/profiles.py b/backend/app/api/endpoints/profiles.py
+index 7151c9e..5b38686 100644
+--- a/backend/app/api/endpoints/profiles.py
++++ b/backend/app/api/endpoints/profiles.py
+@@ -153,15 +153,17 @@ def evaluate_profile(request: ProfileEvaluationRequest):
+                     signalId="profile:handle_reference_mismatch",
+                     layer="identity_consistency",
+                     modality="text",
+-                    polarity="red_flag",
++                    polarity="neutral_uncertain",
+                     confidence=0.90,
+-                    finding=f"Identity handle mismatch: observed profile handle (@{obs_clean}) does not match supplied reference handle (@{ref_clean})."
++                    finding=f"This is a different account from the supplied reference (@{obs_clean} vs @{ref_clean}) and not a close lookalike of it. A different handle alone is not evidence of impersonation."
+                 ))
+ 
+     red_count = sum(1 for entry in ledger if entry.polarity.value == "red_flag")
+     red = red_count > 0
+     if red:
+-        consistency = max(0.05, 0.40 - 0.15 * red_count - risk)
++        # Graded: each red flag and the strongest measured risk lower the index, instead of any
++        # single flag collapsing every profile to the floor.
++        consistency = max(0.05, min(0.60, 0.75 - 0.20 * red_count - 0.50 * risk))
+     else:
+         # Continuous heuristic authenticity index for un-anomalous profile
+         consistency = 0.64

@@ -1,0 +1,14 @@
+diff --git a/backend/app/core/inspection.py b/backend/app/core/inspection.py
+index 91d4545..5b7845d 100644
+--- a/backend/app/core/inspection.py
++++ b/backend/app/core/inspection.py
+@@ -117,7 +117,8 @@ def inspect(request, *, require_multimodal=True, registered_tokens=()):
+                 modalities.add("text")
+             machine_text = ai_text_classifier.analyze(text)
+             # AI-assisted writing is common and legitimate: alone it can reach SUSPICIOUS, never HIGH.
+-            add(machine_text, "mediaSynthesisScore", "media_synthetic", "text", item.evidenceId, score_override=min(machine_text.score, 0.6))
++            add(machine_text, "mediaSynthesisScore", "media_synthetic", "text", item.evidenceId, score_override=min(machine_text.score, 0.6),
++                polarity_override="neutral_uncertain")  # context, never a red flag: polished human bios are misread as AI
+             handle = extra.get("observedHandle")
+             if handle:
+                 add(homoglyph_hunter.analyze(handle.strip().removeprefix("@"), reference=reference), "identityMismatchScore", "identity_consistency", "text", item.evidenceId)
