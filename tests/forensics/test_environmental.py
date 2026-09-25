@@ -92,17 +92,18 @@ def test_invalid_environmental_inputs_rejected(call):
         call()
 
 
-@pytest.mark.parametrize("name,call", [
-    ("environmental_acoustic", lambda: environmental_acoustic.analyze(_impulse(duration=6).tolist())),
-    ("rppg", lambda: rppg.analyze(_rgb(duration=60).tolist())),
+@pytest.mark.parametrize("name,analyze,build", [
+    ("environmental_acoustic", environmental_acoustic.analyze, lambda: _impulse(duration=6).tolist()),
+    ("rppg", rppg.analyze, lambda: _rgb(duration=60).tolist()),
 ])
 @pytest.mark.performance
-def test_optional_measurements_are_json_safe_and_bounded_under_150ms(name, call):
-    call()
+def test_optional_measurements_are_json_safe_and_bounded_under_150ms(name, analyze, build):
+    samples = build()  # fixture construction stays outside the timed call
+    analyze(samples)
     elapsed = []
     for _ in range(8):
         start = perf_counter()
-        measured = call()
+        measured = analyze(samples)
         elapsed.append((perf_counter() - start) * 1000)
         json.dumps(asdict(measured), allow_nan=False)
     print(f"{name}: max={max(elapsed):.2f}ms")

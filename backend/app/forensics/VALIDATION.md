@@ -1,4 +1,4 @@
-# Forensics module validation — AK-1 perturbation bench and AK-2 fixes
+# Forensics module validation — AK-1 perturbation bench, AK-2 fixes and AK-3 latency
 
 Owner: Akarsh · Branch: `akarsh/forensics` · Contract: `contracts/v1/forensics.json` (unchanged)
 
@@ -140,6 +140,59 @@ The AK-1 bench reproduced three issues. Each had a failing regression before its
 
 Still documented limits, not defects: phase-scramble insensitivity, exact-zero gate sensitivity, pHash crop fragility, canary stripping. Changing any of them alters a v1 score meaning and needs a contract proposal first.
 
+## AK-3 bounded laptop latency
+
+Reproduce with `python -m tests.forensics.benchmark --repeats 100` (add `--json` for machine-readable output). `tests/forensics/test_performance.py` runs the same workloads with 20 warmed calls and asserts p95 < 150 ms, printing median, p95 and max.
+
+Each workload is the largest input the v1 extractor accepts, shaped so the extractor **fully evaluates**. The benchmark refuses to time a workload that abstains. Inputs are Python lists, as the API delivers them, so list-to-array conversion counts as extractor time. Fixtures are built before timing. Cold costs come from a fresh subprocess per workload.
+
+Host: Apple M4 · macOS-26.6.2-arm64-arm-64bit-Mach-O · Python 3.13.7 · NumPy 2.4.6 · 100 warmed calls after 3 warm-ups, GC paused during timing.
+
+| Extractor workload | Bound exercised | Median ms | p95 ms | Max ms | < 150 ms |
+| --- | --- | ---: | ---: | ---: | :---: |
+| spatial_fft | 256x256 RGBA list | 8.82 | 8.99 | 9.08 | yes |
+| audio_vocoder@16k | 96,000 samples, 16 kHz | 11.26 | 11.41 | 12.48 | yes |
+| audio_vocoder@48k | 96,000 samples, 48 kHz | 11.24 | 11.40 | 11.55 | yes |
+| stylometry_drift | 20,000 chars + 20,000-char baseline | 2.83 | 2.85 | 2.88 | yes |
+| cross_modal_sync@25 | 1,500 paired samples, 25/s | 0.35 | 0.35 | 0.37 | yes |
+| cross_modal_sync@120 | 1,500 paired samples, 120/s (widest lag search) | 1.37 | 1.38 | 1.44 | yes |
+| homoglyph_hunter | 20,000 adversarial chars + reference | 11.20 | 11.49 | 11.55 | yes |
+| perceptual_hash | two 256x256 RGBA lists | 16.27 | 16.69 | 17.11 | yes |
+| canary_tripwire.detect | 20,000 chars | 0.01 | 0.01 | 0.01 | yes |
+| canary_tripwire.generate | 19,800 chars | 0.01 | 0.01 | 0.02 | yes |
+| environmental_acoustic | 96,000-sample measured IR, 16 kHz | 2.06 | 2.10 | 2.16 | yes |
+| rppg@25 | 1,500 RGB means, 25/s (60 s) | 0.32 | 0.34 | 0.34 | yes |
+| rppg@120 | 1,500 RGB means, 120/s (12.5 s) | 0.32 | 0.33 | 0.33 | yes |
+
+| Extractor workload | NumPy import ms | Module import ms | Fixture build ms | First call ms |
+| --- | ---: | ---: | ---: | ---: |
+| spatial_fft | 27.2 | 1.1 | 14.1 | 10.4 |
+| audio_vocoder@16k | 26.2 | 1.1 | 13.0 | 13.9 |
+| audio_vocoder@48k | 26.2 | 1.1 | 13.2 | 13.7 |
+| stylometry_drift | 26.3 | 1.1 | 0.0 | 3.3 |
+| cross_modal_sync@25 | 26.5 | 1.1 | 8.7 | 0.4 |
+| cross_modal_sync@120 | 26.5 | 1.1 | 8.9 | 1.5 |
+| homoglyph_hunter | 26.4 | 2.8 | 0.0 | 18.6 |
+| perceptual_hash | 26.3 | 1.1 | 19.3 | 18.9 |
+| canary_tripwire.detect | 27.0 | 3.9 | 0.0 | 0.0 |
+| canary_tripwire.generate | 27.0 | 3.9 | 0.0 | 0.0 |
+| environmental_acoustic | 27.4 | 1.1 | 10.9 | 2.3 |
+| rppg@25 | 27.3 | 1.1 | 8.9 | 1.4 |
+| rppg@120 | 26.6 | 1.1 | 9.0 | 1.4 |
+
+**Result: every extractor is under the 150 ms target at its documented bound on this host.** The slowest is `perceptual_hash` at 17.1 ms max. The widest lag search (`cross_modal_sync` at 120 samples/s, ±72 lags) takes 1.4 ms. No optimization was needed, so no detector code changed in AK-3, and uncertainty and abstention are untouched.
+
+Where the time goes, measured separately on this host:
+
+- **Image extractors are dominated by input conversion.** Converting one 256×256 RGBA list to an array takes about 7.2 ms (in `common.finite_array`, Gautham-owned). `spatial_fft` computes in about 1 ms and `perceptual_hash` in 0.6 ms on arrays. If image latency ever matters, the lever is the shared conversion or a denser API encoding, which would be a contract proposal, not a detector change.
+- **`audio_vocoder` is compute-bound:** 11.4 ms on an array versus 1.2 ms for conversion (STFT, mel projection, phase residuals).
+- **`homoglyph_hunter`** pays about 7 ms once to load the Unicode 17.0.0 confusables table on first call (18.6 ms cold versus 11.2 ms warm). The per-character tokenizer added in AK-2 keeps the warm 20,000-character adversarial case at 11.5 ms max.
+- **Cold start:** NumPy import (about 27 ms) dominates process start-up. Detector module imports take 1–4 ms each.
+
+Changes to measurement practice in AK-3: the previous performance test timed `cross_modal_sync` only at 25 samples/s and images only as RGB, so the 120 samples/s lag search and the RGBA bound were never measured. The environmental test built its fixture inside the timed call; fixture construction is now outside it.
+
+Limits: one host (Apple M4, arm64). Python 3.13.7 was used because 3.11 (the team constraint) is not installed here; Gautham's integration run should record the Windows / 3.11 numbers. Timings exclude HTTP parsing, Pydantic validation and core synthesis.
+
 ## Out of scope
 
-No existing thresholds were tuned in AK-1 or AK-2. No v1 names, types, units, bounds or semantics changed; the bench only calls the public functions. Latency is AK-3.
+No existing thresholds were tuned in AK-1, AK-2 or AK-3. The bench and benchmark only call the public functions.
