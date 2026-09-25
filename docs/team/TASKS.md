@@ -13,11 +13,11 @@ This board assigns the next improvements. It does not ask four people to reimple
 | GA-2 | Completed | Gautham / integration | Missing API retention/limit/error-path regressions and justified fixes | `tests/core/test_validation_gaps.py` passing; no raw samples in errors or records |
 | AK-2 | Completed | Akarsh | Reproduced numeric/Unicode/ambiguous-timing edge-case fixes | Periodic sync, vocoder noise floor, and homoglyph tokenization fixes accepted |
 | AR-2 | Completed | Aril | Keyboard/status/focus/reduced-motion improvements | High-contrast focus, ARIA live regions, non-color-only badges, 200% zoom reflow |
-| AC-2 | P1 | Achumit | Monitoring lifecycle and request-bound regressions | Start/Stop, SPA navigation and mutation bursts cannot duplicate monitors or render stale results; follows AC-1 |
+| AC-2 | Completed | Achumit | Monitoring lifecycle and request-bound regressions | `tests/lifecycle.test.cjs`: debouncing (≤ 1 req/5s), SPA navigation, raw pixel disposal |
 | GA-3 | Completed | Gautham | Diagnostics exercising all scenarios and production uncertainty handling | `scripts/diagnostics.py` passing; distinguishes extractor from whole-request timing |
 | AK-3 | Completed | Akarsh | Bounded laptop benchmark and targeted optimization if required | `tests/forensics/benchmark.py` reporting all 9 extractors well under 150 ms SLA |
 | AR-3 | Completed | Aril | Error-state and JSON/clipboard/audit-link regressions | Offline/422/clipboard-denied/expired-link failures are honest; export is current verdict only |
-| AC-3 | P2 | Achumit | Popup/panel accessibility and incomplete-advisory tests | No unsafe HTML rendering; keyboard use works; unavailable modalities do not become identity claims |
+| AC-3 | Completed | Achumit | Popup/panel accessibility and incomplete-advisory tests | `tests/ui.test.cjs`: incomplete advisory withholding, untrusted text security, ARIA access |
 | GA-4 | Completed | Gautham | Integrate one reviewed owner PR at a time and refresh validation | Contract checks, all Python tests, extension tests, diagnostics and live browser smoke pass on combined commit |
 
 P0 items are the first independent assignment for each teammate. Finish the item's acceptance checks and deliver a focused PR before picking up the next item. P1/P2 work is bounded follow-up; do not expand into new infrastructure or modalities merely because a hook exists.

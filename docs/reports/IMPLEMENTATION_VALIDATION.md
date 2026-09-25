@@ -13,7 +13,7 @@ Validated on 2026-09-25 after integrating all team modules into `main`:
   - `python scripts/export_contracts.py --check`: **Valid** (zero drift against v1 contracts and extractor ABI).
   - `python -m pytest tests/`: **336 passed** (including core API, contract architecture, forensic measurements, environmental acoustic, performance, and perturbation bench).
   - JavaScript syntax checks: `node --check` passed for all frontend and extension scripts.
-  - `node --test extension/tests/*.test.cjs`: **34 passed** (background, content, platforms fixture matrix).
+  - `node --test extension/tests/*.test.cjs`: **47 passed** (background, content, platforms fixture matrix, lifecycle debouncing/disposal, UI accessibility/security).
   - `node frontend/tests/browser-smoke.cjs`: **12/12 checks passed** in real headless Chromium against the live backend API.
 - `python scripts/diagnostics.py`: **5/5 passed** (~650 ms runtime across all four live scenario extractions, reporting versions, uncertainty bounds, and per-extractor timings without calling whole-request run an SLA).
 
