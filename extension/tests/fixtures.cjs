@@ -169,6 +169,11 @@ class SimulatedElement {
 
   _matchesAttr(attrStr) {
     const inner = attrStr.slice(1, -1);
+    const containsMatch = inner.match(/^([a-zA-Z0-9_-]+)\*=["']?([^"']+)["']?$/u);
+    if (containsMatch) {
+      const val = this.getAttribute(containsMatch[1]);
+      return val !== null && val.includes(containsMatch[2]);
+    }
     const prefixMatch = inner.match(/^([a-zA-Z0-9_-]+)\^=["']?([^"']+)["']?$/u);
     if (prefixMatch) {
       const val = this.getAttribute(prefixMatch[1]);
@@ -219,6 +224,8 @@ function createXFixture({
   hiddenDuplicate = false,
   mismatchedHeader = false,
   missingHeader = false,
+  statsText = "",
+  postImages = [],
   feedPosts = ["SPAM TWEET: Send 1 BTC to get 2 BTC back!", "Crypto giveaway in replies"],
   dms = ["Private DM: Hey check this secret link!"]
 } = {}) {
@@ -244,6 +251,13 @@ function createXFixture({
     );
     main.append(headerName);
 
+    if (statsText) {
+      const headerStats = new SimulatedElement("div");
+      headerStats.setAttribute("data-testid", "UserProfileHeader_Items");
+      headerStats.textContent = statsText;
+      main.append(headerStats);
+    }
+
     const desc = new SimulatedElement("div");
     desc.setAttribute("data-testid", "UserDescription");
     desc.textContent = bio;
@@ -262,6 +276,18 @@ function createXFixture({
     avatarContainer.append(anchor);
     main.append(avatarContainer);
   }
+
+  postImages.forEach(src => {
+    const photoContainer = new SimulatedElement("div");
+    photoContainer.setAttribute("data-testid", "tweetPhoto");
+    const img = new SimulatedElement("img");
+    img.setAttribute("src", src);
+    img.complete = true;
+    img.naturalWidth = 128;
+    img.naturalHeight = 128;
+    photoContainer.append(img);
+    main.append(photoContainer);
+  });
 
   // Feed posts inside articles with test ids
   feedPosts.forEach(postText => {
@@ -299,6 +325,8 @@ function createInstagramFixture({
   hiddenDuplicate = false,
   mismatchedHeader = false,
   missingHeader = false,
+  statsText = "",
+  postImages = [],
   feedPosts = ["Instagram post caption: exclusive merch drop!", "Check the link in bio for discounts"],
   dms = ["Instagram Direct Message: Hey do you sell prints?"]
 } = {}) {
@@ -328,6 +356,10 @@ function createInstagramFixture({
     nameSpan.textContent = displayName;
     header.append(nameSpan);
 
+    if (statsText) {
+      header.append(new SimulatedElement("div", statsText));
+    }
+
     const bioDiv = new SimulatedElement("div");
     bioDiv.setAttribute("data-testid", "user-bio");
     bioDiv.textContent = bio;
@@ -344,6 +376,18 @@ function createInstagramFixture({
 
     main.append(header);
   }
+
+  postImages.forEach(src => {
+    const a = new SimulatedElement("a");
+    a.setAttribute("href", "/p/sample123/");
+    const img = new SimulatedElement("img");
+    img.setAttribute("src", src);
+    img.complete = true;
+    img.naturalWidth = 150;
+    img.naturalHeight = 150;
+    a.append(img);
+    main.append(a);
+  });
 
   // Instagram feed/posts outside the header
   feedPosts.forEach(postCaption => {

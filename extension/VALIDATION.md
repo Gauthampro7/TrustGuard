@@ -44,7 +44,7 @@
 
 ---
 
-## 2. Test Suite Matrix (47 Passing Tests)
+## 2. Test Suite Matrix (49 Passing Tests)
 
 The entire suite runs completely offline with zero npm dependencies using Node.js built-in test runner (`node --test extension/tests/*.test.cjs`).
 
@@ -74,6 +74,8 @@ The entire suite runs completely offline with zero npm dependencies using Node.j
 | **LinkedIn** | Non-profile routes | `/feed`, `/messaging`, `/jobs`, `/in` rejected before inspection | **PASS** |
 | **LinkedIn** | CORS canvas rejection | Generates incomplete advisory (`inspectionComplete: false`) | **PASS** |
 | **Universal** | Malformed URLs | Malformed URI encodings (`/%E0%A4%A`) fail closed on all platforms | **PASS** |
+| **Footprint** | Social metrics | Extracts postsCount, followersCount, followingCount from header | **PASS** |
+| **Multi-Image** | Post screening & memory safety | Caps at 3 images, samples 64×64 pixels, purges post pixels in finally | **PASS** |
 
 ### Lifecycle & Monitoring Tests (`lifecycle.test.cjs`)
 | Area | Test Case | Target Behavior | Result |
@@ -131,14 +133,14 @@ git diff --check
 
 ### Test Runner Summary
 ```
-ℹ tests 47
+ℹ tests 49
 ℹ suites 0
-ℹ pass 47
+ℹ pass 49
 ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms ~203ms
+ℹ duration_ms ~238ms
 extension: all selected checks passed.
 Ownership OK: Achumit.
 ```

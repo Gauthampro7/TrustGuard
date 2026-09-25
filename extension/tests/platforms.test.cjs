@@ -435,3 +435,47 @@ test("Universal: malformed URL fails closed on all platforms", async () => {
     assert.equal(app.sent.length, 0, platform);
   }
 });
+
+test("Footprint: extracts social footprint metrics (posts, followers, following) from profile header", async () => {
+  const fixture = createXFixture({
+    handle: "alice",
+    statsText: "1,250 posts · 45.2K followers · 380 following"
+  });
+  const app = createPlatformHarness({ platform: "twitter", route: "/alice", fixture });
+  const response = await app.message({ type: "INSPECT_PROFILE" });
+
+  assert.equal(response.success, true);
+  const payload = app.sent[0];
+  assert.equal(payload.postsCount, 1250);
+  assert.equal(payload.followersCount, 45200);
+  assert.equal(payload.followingCount, 380);
+  assert.equal(payload.accountCreatedDate, "1250 posts · 45200 followers · 380 following");
+});
+
+test("Multi-image: screens up to 3 post images and purges raw post pixels in finally block", async () => {
+  const fixture = createInstagramFixture({
+    handle: "carol_art",
+    postImages: [
+      "https://instagram.com/post1.jpg",
+      "https://instagram.com/post2.jpg",
+      "https://instagram.com/post3.jpg",
+      "https://instagram.com/post4.jpg"
+    ]
+  });
+  const app = createPlatformHarness({ platform: "instagram", route: "/carol_art", fixture });
+  const response = await app.message({ type: "INSPECT_PROFILE" });
+
+  assert.equal(response.success, true);
+  const sentPayload = app.sent[0];
+  // Must cap at 3 post images
+  assert.equal(sentPayload.postImagesPixels.length, 3);
+  assert.equal(sentPayload.postImagesPixels[0].length, 64);
+  assert.equal(sentPayload.postImagesPixels[0][0].length, 64);
+
+  // Observation note must report screened post images
+  assert.ok(response.observationNotes.some(note => note.includes("3 post image(s) screened")));
+
+  // Memory safety: raw sampled post pixels must be purged in finally block
+  const payloadRef = app.sentReferences[0];
+  assert.equal("postImagesPixels" in payloadRef, false);
+});
