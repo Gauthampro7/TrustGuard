@@ -9,7 +9,6 @@ Multilingual prose and non-Latin names are not intrinsically suspicious.
 
 from functools import lru_cache
 from pathlib import Path
-import re
 from time import perf_counter
 import unicodedata
 
@@ -33,6 +32,24 @@ def skeleton(text):
     """Return the TR39 table skeleton; caller chooses identifier case policy."""
     mappings = _mappings()
     return unicodedata.normalize("NFD", "".join(mappings.get(char, char) for char in unicodedata.normalize("NFD", bounded_text(text))))
+
+
+def _tokens(text):
+    """Identifier tokens; combining marks (category M) stay attached to their base letter.
+
+    `\\w` excludes combining marks, so "а́pple" used to split into "а" + "pple"
+    and hide the Latin/Cyrillic mix.
+    """
+    token = []
+    for char in text:
+        category = unicodedata.category(char)
+        if category[0] in "LMN" or category == "Pc":
+            token.append(char)
+        elif token:
+            yield "".join(token)
+            token = []
+    if token:
+        yield "".join(token)
 
 
 @lru_cache(maxsize=4096)
@@ -60,11 +77,11 @@ def analyze(text, reference=None):
             candidate_chars.append({"index": index, "character": char,
                 "codePoint": f"U+{ord(char):04X}", "looksLike": mapped, "script": _script(char)})
     mixed_tokens = []
-    for match in re.finditer(r"[\w]+", text, flags=re.UNICODE):
-        scripts = {_script(char) for char in match.group() if char.isalpha()}
+    for token in _tokens(text):
+        scripts = {_script(char) for char in token if char.isalpha()}
         if "LATIN" in scripts and scripts.intersection({"CYRILLIC", "GREEK"}):
-            if any(ord(char) > 127 and char in table and any("LATIN" in unicodedata.name(c, "") for c in table[char]) for char in match.group()):
-                mixed_tokens.append(match.group())
+            if any(ord(char) > 127 and char in table and any("LATIN" in unicodedata.name(c, "") for c in table[char]) for char in token):
+                mixed_tokens.append(token)
     candidate_skeleton = skeleton(text.casefold())
     reference_skeleton = skeleton(reference.casefold()) if reference is not None else None
     collision = reference is not None and candidate_skeleton == reference_skeleton and unicodedata.normalize("NFC", text.casefold()) != unicodedata.normalize("NFC", reference.casefold())

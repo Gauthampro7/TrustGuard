@@ -54,10 +54,21 @@ def analyze(audio_envelope, mouth_aperture, sample_rate=25):
     lag_sec = float(lags[best] / sample_rate)
     correlation = float(correlations[best])
     zero_correlation = correlations[max_lag]
+    # Periodic traces correlate equally one period apart, so a distinct local peak
+    # within 0.05 of the best makes the offset (and even its sign) ambiguous.
+    last = len(correlations) - 1
+    peaks = [i for i in range(len(correlations))
+             if (i == 0 or correlations[i] >= correlations[i - 1]) and (i == last or correlations[i] >= correlations[i + 1])]
+    rivals = [i for i in peaks if abs(i - best) > 1 and correlations[i] >= correlation - 0.05]
+    rival = max(rivals, key=lambda i: correlations[i]) if rivals and correlation >= 0.3 else None
     score = max(0.0, min(0.9, (abs(lag_sec) - 0.12) / 0.4)) * max(0, correlation)
     if correlation < 0.3:
         score, uncertainty = 0.0, 0.9
         finding = "Mouth and audio traces have weak association; a reliable offset cannot be inferred."
+    elif rival is not None:
+        uncertainty = 0.75
+        finding = (f"Alignments at {round(lag_sec * 1000)} ms and {round(lags[rival] / sample_rate * 1000)} ms are about equally strong; "
+                   "periodic motion makes the mouth delay ambiguous.")
     else:
         uncertainty = max(0.35, 0.75 if audio.size / sample_rate < 2 else 0, 0.65 if abs(lags[best]) == max_lag else 0)
         finding = f"Best envelope alignment has a {round(lag_sec * 1000)} ms mouth delay relative to audio."
@@ -69,4 +80,6 @@ def analyze(audio_envelope, mouth_aperture, sample_rate=25):
         "lagMs": round(lag_sec * 1000, 3), "lagFrames": int(lags[best]),
         "sampleRate": sample_rate, "sampleCount": int(audio.size),
         "searchBoundaryReached": bool(abs(lags[best]) == max_lag),
+        "ambiguousLag": rival is not None,
+        "alternativeLagMs": None if rival is None else round(float(lags[rival] / sample_rate) * 1000, 3),
     })

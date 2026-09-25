@@ -1,4 +1,4 @@
-# Forensics module validation — AK-1 perturbation bench
+# Forensics module validation — AK-1 perturbation bench and AK-2 fixes
 
 Owner: Akarsh · Branch: `akarsh/forensics` · Contract: `contracts/v1/forensics.json` (unchanged)
 
@@ -7,7 +7,7 @@ This note records how the nine v1 extractors respond to seeded **synthetic** con
 ## Reproduce
 
 ```bash
-python -m pytest tests/forensics/test_perturbation_bench.py -q     # invariants + 3 strict xfails
+python -m pytest tests/forensics/test_perturbation_bench.py -q     # invariants + AK-2 regressions
 python -m tests.forensics.fixtures.controls --seeds 20              # prints the table below
 ```
 
@@ -17,7 +17,7 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 - For `canary_tripwire` (dictionary interface) the score column is `tripwireTriggered` as 0/1 and uncertainty is not applicable.
 - `perceptual_hash` reports 0.75 on a match at module level; the core re-weights a match to a neutral 0.35 because reuse may be authorized.
 
-## Observed distributions (20 seeds)
+## Observed distributions (20 seeds, after AK-2)
 
 | Module | Control | Kind | Evaluated | Score min / median / max | Uncertainty median |
 | --- | --- | --- | ---: | --- | ---: |
@@ -39,7 +39,7 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 | audio_vocoder | STFT phase scrambled | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.45 |
 | audio_vocoder | three 100 ms exact-zero gates | perturbed | 20/20 | 0.55 / 0.55 / 0.55 | 0.45 |
 | audio_vocoder | three 100 ms low-noise gates | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.45 |
-| audio_vocoder | near-silent dither 1e-5 | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.45 |
+| audio_vocoder | near-silent dither 1e-5 | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.80 |
 | audio_vocoder | digital silence | abstain | 0/20 | 0.00 / 0.00 / 0.00 | 1.00 |
 | audio_vocoder | 0.05 s clip | abstain | 0/20 | 0.00 / 0.00 / 0.00 | 1.00 |
 | stylometry_drift | business text | benign | 20/20 | 0.00 / 0.00 / 0.00 | 0.48 |
@@ -55,8 +55,8 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 | cross_modal_sync | mouth lag +0 ms | benign | 20/20 | 0.00 / 0.00 / 0.00 | 0.35 |
 | cross_modal_sync | mouth lag +200 ms | perturbed | 20/20 | 0.20 / 0.20 / 0.20 | 0.35 |
 | cross_modal_sync | mouth lag -200 ms | perturbed | 20/20 | 0.20 / 0.20 / 0.20 | 0.35 |
-| cross_modal_sync | periodic 2 Hz traces, 120 ms lag | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.35 |
-| cross_modal_sync | periodic 2 Hz traces, 300 ms lag | perturbed | 20/20 | 0.20 / 0.20 / 0.20 | 0.35 |
+| cross_modal_sync | periodic 2 Hz traces, 120 ms lag | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.75 |
+| cross_modal_sync | periodic 2 Hz traces, 300 ms lag | perturbed | 20/20 | 0.20 / 0.20 / 0.20 | 0.75 |
 | cross_modal_sync | lag beyond +/-600 ms search | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.90 |
 | cross_modal_sync | independent noise traces | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.90 |
 | cross_modal_sync | constant mouth | abstain | 0/20 | 0.00 / 0.00 / 0.00 | 1.00 |
@@ -72,7 +72,7 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 | homoglyph_hunter | Cyrillic a vs reference | perturbed | 20/20 | 0.90 / 0.90 / 0.90 | 0.15 |
 | homoglyph_hunter | l->1 digit swap vs reference | perturbed | 20/20 | 0.90 / 0.90 / 0.90 | 0.15 |
 | homoglyph_hunter | Cyrillic o + combining acute in Latin handle | perturbed | 20/20 | 0.65 / 0.65 / 0.65 | 0.35 |
-| homoglyph_hunter | combining acute after leading Cyrillic a | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.35 |
+| homoglyph_hunter | combining acute after leading Cyrillic a | perturbed | 20/20 | 0.65 / 0.65 / 0.65 | 0.35 |
 | homoglyph_hunter | combining acute vs plain reference | perturbed | 20/20 | 0.00 / 0.00 / 0.00 | 0.15 |
 | homoglyph_hunter | bidi override | perturbed | 20/20 | 0.45 / 0.45 / 0.45 | 0.35 |
 | homoglyph_hunter | empty identifier | abstain | 0/20 | 0.00 / 0.00 / 0.00 | 1.00 |
@@ -116,9 +116,9 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 
 **stylometry_drift.** Uncertainty falls monotonically with length (5 words 0.97, 15: 0.91, 40: 0.75, full: 0.48). A 20-word text skips baseline comparison (uncertainty 0.88). A topic shift against a same-author baseline gives drift 0.32, above a same-text baseline (0). Topic, not authorship, explains it, as the finding states. Hindi text is evaluated at uncertainty 1.0 with a limited-coverage finding.
 
-**cross_modal_sync.** Lag sign is recovered exactly for ±200 ms under noise (correlation > 0.99). Offsets beyond the ±600 ms search window look like unrelated traces: correlation < 0.3, score 0, uncertainty 0.9. A large desynchronization is therefore **undetermined**, not flagged. Periodic traces are ambiguous (see issue 2).
+**cross_modal_sync.** Lag sign is recovered exactly for ±200 ms under noise (correlation > 0.99). Offsets beyond the ±600 ms search window look like unrelated traces: correlation < 0.3, score 0, uncertainty 0.9. A large desynchronization is therefore **undetermined**, not flagged. Periodic traces with equally strong alignments are now reported as ambiguous (AK-2 fix 2).
 
-**homoglyph_hunter.** Cyrillic, Greek and Devanagari names, separate-language tokens, and Latin names with combining accents are not flagged. A Cyrillic `а` in a Latin handle scores 0.65 (0.90 against a reference), an `l→1` swap collides with its reference (0.90), and a bidi override scores 0.45. A combining accent placed after a leading lookalike hides it (see issue 1).
+**homoglyph_hunter.** Cyrillic, Greek and Devanagari names, separate-language tokens, and Latin names with combining accents are not flagged. A Cyrillic `а` in a Latin handle scores 0.65 (0.90 against a reference), an `l→1` swap collides with its reference (0.90), and a bidi override scores 0.45. Combining accents no longer split identifier tokens (AK-2 fix 1).
 
 **perceptual_hash.** Identical reuse, +20 brightness, 16-level quantization, block flattening, 2× resampling and noise all match (Hamming ≤ 6). Unrelated textures are separated by 24–38 bits. A 5% border crop defeats the global DCT hash on most seeds (distance 4–14, median 10). Crop-robust reuse is outside this hash's reach.
 
@@ -128,16 +128,18 @@ python -m tests.forensics.fixtures.controls --seeds 20              # prints the
 
 **rppg.** A 1.2 Hz component is recovered at 1.17 Hz (FFT bin) at 25 and 10 samples/s. Shared illumination alone, a drifting 1.0 → 1.8 Hz component and noise alone all abstain. Strong shared flicker masks a real component on 1 of 20 seeds. `biologicalLivenessEstablished` is always false.
 
-## Reproduced issues for AK-2
+## AK-2 fixes
 
-Each is a strict `xfail` in `tests/forensics/test_perturbation_bench.py`. Its expected behaviour is written as the assertion; fixing the issue makes the test pass and forces removal of the marker.
+The AK-1 bench reproduced three issues. Each had a failing regression before its fix (`tests/forensics/test_perturbation_bench.py`). Only the four affected bench rows changed (the table above). Every benign control and the one scenario with lip-sync traces (`ceo-wire-scam`) are unchanged, and the full repository suite passes (295 passed, 1 optional skip).
 
-1. **Combining marks split identifier tokens.** `\w+` does not include combining marks (category Mn), so `"а́pple"` tokenizes as `а` + `pple` and no single token mixes Latin and Cyrillic. Score 0 even though `confusableCount` is 1. `"pо́stmaster"` is still caught, but the reported token is truncated to `pо`.
-2. **Ambiguous periodic lag is reported confidently with the wrong sign.** For 2 Hz traces with a true +300 ms mouth delay, the −200 ms peak is equally correlated and closer to zero. It is chosen with correlation 1.0 and uncertainty 0.35. Expected: report the ambiguity (raise uncertainty) rather than a confident opposite sign.
-3. **Near-silent dither is evaluated as ordinary audio.** Peak normalization lifts 1e-5 noise to full scale; it is evaluated with `activeFrameFraction` 1.0 and the ordinary 0.45 uncertainty. Expected: abstain or raise uncertainty for inputs with no usable level.
+1. **Combining marks split identifier tokens** (`homoglyph_hunter`). `\w+` excludes combining marks (category M), so `"а́pple"` tokenized as `а` + `pple` and scored 0 despite a counted confusable. Tokens now include letters, marks, numbers and connector punctuation, so a mark stays with its base letter. `"а́pple"`, `"paypáа"` and `"pо́stmaster"` score 0.65 and report the whole token. Accented Latin, Cyrillic, Greek and Devanagari names and separate-language tokens remain unflagged. Largest-input latency: 12.2 ms max.
+2. **Ambiguous periodic lag was reported confidently** (`cross_modal_sync`). For 2 Hz traces with a true +300 ms mouth delay, −200 ms was equally correlated, chosen as the closer peak and reported at uncertainty 0.35. When a distinct local correlation peak is within 0.05 of the best (and correlation ≥ 0.3), uncertainty is now 0.75 and the finding names both alignments. The chosen `lagMs` and the score are unchanged. Additive metrics: `ambiguousLag` (bool), `alternativeLagMs` (ms or null). Irregular speech-like controls at 0/±200 ms are never ambiguous (20/20 seeds).
+3. **Near-silent audio was evaluated as ordinary audio** (`audio_vocoder`). Peak normalization lifted 1e-5 noise to full scale. The pre-normalization peak is now recorded as the additive metric `peakDbfs`; below −60 dBFS uncertainty is raised to 0.80 with a noise-floor finding. The score is unchanged, and a quiet clip at −28 dBFS keeps the ordinary 0.45.
 
-Not treated as defects (documented limits): phase-scramble insensitivity, exact-zero gate sensitivity, pHash crop fragility, canary stripping. Changing any of them alters a v1 score meaning and needs a contract proposal first.
+**Contract note for review.** No v1 names, types, units, bounds, required metrics or score formulas changed; three diagnostic metrics were added. Fixes 2 and 3 add new conditions that *raise* uncertainty in cases the v1 policy did not anticipate. They never lower it and never change a score. Gautham should confirm this counts as a compatible fix rather than an uncertainty-policy change needing a proposal.
+
+Still documented limits, not defects: phase-scramble insensitivity, exact-zero gate sensitivity, pHash crop fragility, canary stripping. Changing any of them alters a v1 score meaning and needs a contract proposal first.
 
 ## Out of scope
 
-No thresholds were tuned in AK-1. No v1 names, types, units, bounds or semantics changed; the bench only calls the public functions. Latency is AK-3.
+No existing thresholds were tuned in AK-1 or AK-2. No v1 names, types, units, bounds or semantics changed; the bench only calls the public functions. Latency is AK-3.

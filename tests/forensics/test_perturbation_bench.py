@@ -1,8 +1,8 @@
 """AK-1 perturbation bench: seeded synthetic controls, observed invariants and known gaps.
 
 The controls live in tests/forensics/fixtures/controls.py; distributions are recorded
-in backend/app/forensics/VALIDATION.md. Strict xfail tests are reproduced AK-2 issues:
-they fail loudly once fixed so the marker is removed with the fix.
+in backend/app/forensics/VALIDATION.md. The AK-2 regressions below failed before their
+fixes (combining-mark tokens, ambiguous periodic lag, near-silent audio).
 """
 
 from dataclasses import asdict
@@ -121,10 +121,17 @@ def test_audio_phase_scrambling_raises_the_phase_rate_directionally():
         assert scrambled > clean
 
 
-@pytest.mark.xfail(strict=True, reason="AK-2: near-silent dither is peak-normalized and evaluated as ordinary audio")
 def test_audio_near_silent_dither_is_not_treated_as_ordinary_audio():
     measured = audio_vocoder.analyze(np.random.default_rng(0).normal(0, 1e-5, 3 * bench.RATE))
     assert not measured.metrics["evaluated"] or measured.uncertainty >= 0.7
+
+
+def test_audio_near_silent_rule_only_changes_uncertainty_below_minus_60_dbfs():
+    speech = bench.speech_like(np.random.default_rng(1))
+    quiet, faint = audio_vocoder.analyze(speech * 0.05), audio_vocoder.analyze(speech / np.abs(speech).max() * 5e-4)
+    assert quiet.metrics["peakDbfs"] > -60 and quiet.uncertainty == 0.45
+    assert faint.metrics["peakDbfs"] < -60 and faint.uncertainty == 0.8
+    assert faint.score == quiet.score and "noise floor" in " ".join(faint.findings)
 
 
 # ------------------------------------------------------------------ stylometry_drift
@@ -170,10 +177,22 @@ def test_sync_unrecoverable_offsets_do_not_score(name):
         assert run["score"] == 0 and run["uncertainty"] >= 0.9
 
 
-@pytest.mark.xfail(strict=True, reason="AK-2: a periodic trace's +300 ms lag is reported as a confident -200 ms")
 def test_sync_ambiguous_periodic_peaks_are_not_reported_confidently():
     measured = raw("cross_modal_sync", "periodic 2 Hz traces, 300 ms lag")
     assert measured.metrics["lagMs"] > 0 or measured.uncertainty >= 0.65
+
+
+def test_sync_ambiguity_names_both_alignments_and_spares_irregular_speech():
+    periodic = raw("cross_modal_sync", "periodic 2 Hz traces, 300 ms lag")
+    # 25 samples/s quantizes the true +300 ms to the 320 ms frame.
+    assert periodic.metrics["ambiguousLag"]
+    assert (periodic.metrics["lagMs"], periodic.metrics["alternativeLagMs"]) == (-200, 320)
+    assert "ambiguous" in periodic.findings[0]
+    for name in ("mouth lag +0 ms", "mouth lag +200 ms", "mouth lag -200 ms"):
+        for run in runs("cross_modal_sync", name, range(20)):
+            assert run["metrics"]["ambiguousLag"] is False and run["uncertainty"] == 0.35
+    for run in runs("cross_modal_sync", "independent noise traces"):
+        assert run["metrics"]["alternativeLagMs"] is None
 
 
 # ------------------------------------------------------------------ homoglyph_hunter
@@ -192,9 +211,13 @@ def test_homoglyph_lookalikes_are_flagged(name, minimum):
     assert raw("homoglyph_hunter", name).score >= minimum
 
 
-@pytest.mark.xfail(strict=True, reason="AK-2: a combining mark after a Cyrillic lookalike splits the identifier token")
 def test_homoglyph_combining_mark_does_not_hide_a_mixed_script_token():
     assert homoglyph_hunter.analyze("а́pple").score >= 0.65
+
+
+@pytest.mark.parametrize("text", ["а́pple", "paypáа", "pо́stmaster"])
+def test_homoglyph_reports_the_whole_token_across_combining_marks(text):
+    assert homoglyph_hunter.analyze(text).metrics["mixedScriptTokens"] == [text]
 
 
 # ------------------------------------------------------------------ perceptual_hash
